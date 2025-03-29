@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>astrakyss. | My Portfolio</title>
+    <style>
+        /* ===== GLOBAL RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #000;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== MUSIC PLAYER ===== */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(30, 0, 60, 0.9);
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .music-player:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+        }
+
+        .music-btn {
+            background: none;
+            border: none;
+            color: #b967ff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .music-btn:hover {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            background: rgba(255, 0, 255, 0.2);
+        }
+
+        .music-info {
+            font-size: 0.9rem;
+            color: #d8bfd8;
+            max-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: max-width 0.5s ease, margin-right 0.5s ease;
+        }
+
+        .music-player:hover .music-info {
+            max-width: 200px;
+            margin-right: 10px;
+        }
+
+        /* ===== ENHANCED DISCORD PROFILE ===== */
+        .discord-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: rgba(30, 0, 60, 0.9);
+            border-radius: 15px;
+            border: 2px solid #ff00ff;
+            max-width: 450px;
+            margin: 0 auto 3rem;
+            transition: all 0.4s;
+            position: relative;
+            z-index: 50;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .discord-profile:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(255, 0, 255, 0.8);
+            border-color: #b967ff;
+        }
+
+        .discord-avatar {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #8a2be2;
+            flex-shrink: 0;
+        }
+
+        .discord-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .discord-status {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            background: #ed4245;
+            border-radius: 50%;
+            border: 4px solid #2c2f33;
+            box-shadow: 0 0 10px rgba(237, 66, 69, 0.8);
+        }
+
+        .discord-info {
+            flex: 1;
+        }
+
+        .discord-username {
+            color: #ff00ff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px #ff00ff;
+            font-weight: 700;
+        }
+
+        .discord-status-text {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .discord-status-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ed4245;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(237, 66, 69, 0.8);
+        }
+
+        /* ===== GLOW EFFECT ===== */
+        .discord-profile::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff00ff, #8a2be2, #ff00ff);
+            background-size: 200%;
+            z-index: -1;
+            border-radius: 17px;
+            opacity: 0.7;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: #000;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #8a2be2;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        nav a {
+            color: #b967ff;
+            margin-right: 1.5rem;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            padding: 4rem 2rem;
+            min-height: 100vh;
+            position: relative;
+            z-index: 5;
+        }
+
+        #home {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.2), transparent),
+                radial-gradient(circle at 90% 80%, rgba(75, 0, 130, 0.2), transparent),
+                #000;
+            background-size: 200% 200%;
+            animation: gradientMove 10s infinite alternate;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #b967ff;
+            text-shadow: 0 0 20px #8a2be2;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        h2 {
+            color: #b967ff;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-shadow: 0 0 10px #8a2be2;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== PROJECT GRID ===== */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .project {
+            border: 1px solid #4b0082;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: rgba(20, 0, 40, 0.7);
+            transition: all 0.4s;
+            position: relative;
+            z-index: 10;
+        }
+
+        .project:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
+            border-color: #ff00ff;
+        }
+
+        .project h3 {
+            color: #b967ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .project a {
+            color: #b967ff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .project a:hover {
+            color: #ff00ff;
+            text-shadow: 0 0 8px #ff00ff;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: left;
+            padding: 2rem;
+            background: #000;
+            border-top: 1px solid #4b0082;
+            color: #b967ff;
+            position: relative;
+            z-index: 10;
+        }
+
+        footer p {
+            margin-left: 2rem;
+        }
+
+        /* ===== CURSOR SYSTEM ===== */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #b967ff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 9999;
+            transition: transform 0.1s;
+        }
+
+        .cursor-follower {
+            width: 10px;
+            height: 10px;
+            background: #ff00ff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.4s ease-out, opacity 0.1s;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes gradientMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* ===== PARTICLES.JS CONTAINER ===== */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background: #000 !important;
+        }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            .project-grid { grid-template-columns: 1fr; }
+            section { padding: 3rem 1rem; }
+            footer p { margin-left: 1rem; }
+            .discord-profile {
+                flex-direction: column;
+                text-align: center;
+                max-width: 90%;
+            }
+            .discord-avatar {
+                width: 80px;
+                height: 80px;
+            }
+            .music-player {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Audio Element (Hidden) -->
+    <audio id="bgMusic" loop>
+        <source src="SpotifyMate.com - mr robot - yourshxbh.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Music Player -->
+    <div class="music-player">
+        <button class="music-btn" id="musicToggle">🔊</button>
+        <div class="music-info">astrakys life</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Particles Container -->
+    <div id="particles-js"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#work">Work</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Discord Profile -->
+    <section id="home">
+        <a href="https://discord.gg/brkTTerdsu" target="_blank" class="discord-profile">
+            <div class="discord-avatar">
+                <img src="your-pfp.jpg" alt="Your Discord PFP">
+                <div class="discord-status"></div>
+            </div>
+            <div class="discord-info">
+                <div class="discord-username">astrakyss.</div>
+                <div class="discord-status-text">
+                    <span class="discord-status-icon"></span>
+                    <span>Do Not Disturb</span>
+                </div>
+            </div>
+        </a>
+        
+        <h1>astrakyss.</h1>
+        <p>hi im astrakys, i can do almost anything..</p>
+    </section>
+
+    <!-- Work Section -->
+    <section id="work">
+        <h2>My Work</h2>
+        <div class="project-grid">
+            <div class="project">
+                <h3>unknown program</h3>
+                <p>im not done with  this project just yet!</p>
+                <a href="#">View Project</a>
+            </div>
+            <div class="project">
+                <h3>Upcoming yt vid</h3>
+                <p>coming soon!.</p>
+                <a href="#">View Project</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2>Who the Hell Am I?</h2>
+        <p>hi im astrakyss, i started coding in the late 2021 and i fell in loved in this. Now i wanna make some of this part of my carrer."</p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2>Hit Me Up</h2>
+        <p>What I Wanna Do: i do programs, i upload tuts on yt, and i do this for fun lol. IF YOU WANT TO HIT ME UP CONTACT ME VIA DISCORD(astrakyss.)."</p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 loverboy. rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+      
+      // ===== MUSIC PLAYER =====
+const bgMusic = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('musicToggle');
+let isMusicPlaying = false;
+
+// Set lower volume for better user experience
+bgMusic.volume = 0.6;
+
+// Aggressive autoplay strategy
+function forceAutoplay() {
+  // First try regular play
+  const playPromise = bgMusic.play();
+  
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      // If blocked, mute and try again (many browsers allow muted autoplay)
+      bgMusic.muted = true;
+      bgMusic.play()
+        .then(() => {
+          // Success! Now try unmuting
+          setTimeout(() => {
+            bgMusic.muted = false;
+            isMusicPlaying = true;
+            musicToggle.textContent = '🔊';
+          }, 1000);
+        })
+        .catch(err => {
+          // Final fallback - wait for user interaction
+          isMusicPlaying = false;
+          musicToggle.textContent = '🔇';
+          document.body.addEventListener('click', () => {
+            bgMusic.play();
+            isMusicPlaying = true;
+            musicToggle.textContent = '🔊';
+          }, { once: true });
+        });
+    });
+  }
+}
+
+// Initialize music immediately
+document.addEventListener('DOMContentLoaded', () => {
+  // Start with muted autoplay (works in more browsers)
+  bgMusic.muted = true;
+  forceAutoplay();
+  
+  // Try to unmute after a short delay
+  setTimeout(() => {
+    bgMusic.muted = false;
+  }, 1000);
+});
+
+// Toggle music
+musicToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (isMusicPlaying) {
+    bgMusic.pause();
+    musicToggle.textContent = '🔇';
+  } else {
+    bgMusic.play();
+    musicToggle.textContent = '🔊';
+  }
+  isMusicPlaying = !isMusicPlaying;
+});
+
+        // ===== CURSOR SYSTEM =====
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = `${e.clientX}px`;
+            cursor.style.top = `${e.clientY}px`;
+            
+            gsap.to(cursorFollower, {
+                x: e.clientX,
+                y: e.clientY,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+        });
+
+        document.querySelectorAll('a, button, .project').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.8)';
+                cursor.style.borderColor = '#ff00ff';
+                cursorFollower.style.transform = 'scale(3)';
+                cursorFollower.style.opacity = '0.4';
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.borderColor = '#b967ff';
+                cursorFollower.style.transform = 'scale(1)';
+                cursorFollower.style.opacity = '1';
+            });
+        });
+
+        // ===== PARTICLES.JS INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('particles-js')) {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: "#b967ff" },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.5, random: true },
+                        size: { value: 3, random: true },
+                        line_linked: { enable: true, distance: 150, color: "#b967ff", opacity: 0.4, width: 1 },
+                        move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out" }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: { enable: true, mode: "repulse" },
+                            onclick: { enable: true, mode: "push" }
+                        }
+                    }
+                });
+            }
+
+            // Simple fade-in animation for content
+            gsap.utils.toArray('section, .discord-profile').forEach((el, i) => {
+                gsap.from(el, {
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.8,
+                    delay: i * 0.2,
+                    ease: "power2.out"
+                });
+            });
+
+            // Discord profile pulse effect
+            setInterval(() => {
+                const profile = document.querySelector('.discord-profile');
+                if (profile) {
+                    gsap.to(profile, {
+                        scale: 1.02,
+                        boxShadow: '0 0 40px rgba(255, 0, 255, 0.8)',
+                        duration: 1.5,
+                        yoyo: true,
+                        repeat: 1,
+                        ease: "sine.inOut"
+                    });
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
