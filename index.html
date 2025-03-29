@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>astrakyss. | loverboy.info</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <title>astrakyss. | My Portfolio</title>
     <style>
         /* ===== GLOBAL RESET ===== */
         * {
@@ -24,117 +19,6 @@
             color: #e0e0e0;
             line-height: 1.6;
             overflow-x: hidden;
-        }
-
-        /* ===== SEARCH BAR ===== */
-        .search-container {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000; /* Increased z-index */
-            display: flex;
-            align-items: center;
-        }
-
-        .search-bar {
-            background: rgba(30, 0, 60, 0.9);
-            border: 2px solid #b967ff;
-            color: #e0e0e0;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            width: 200px;
-            transition: all 0.3s;
-            outline: none;
-        }
-
-        .search-bar:focus {
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
-            width: 250px;
-        }
-
-        .search-btn {
-            background: none;
-            border: none;
-            color: #b967ff;
-            margin-left: -35px;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        /* Search Results Popup */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 400px;
-            overflow-y: auto;
-            background: rgba(20, 0, 40, 0.95);
-            border: 1px solid #b967ff;
-            border-radius: 5px;
-            z-index: 1000;
-            display: none;
-        }
-
-        .search-result-item {
-            padding: 10px;
-            border-bottom: 1px solid #4b0082;
-            cursor: pointer;
-        }
-
-        .search-result-item:hover {
-            background: rgba(255, 0, 255, 0.1);
-        }
-
-        /* ===== MODS SECTION ===== */
-        #mods {
-            min-height: auto;
-            padding: 2rem;
-        }
-
-        .mod-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .mod-card {
-            background: rgba(20, 0, 40, 0.7);
-            border: 1px solid #4b0082;
-            border-radius: 8px;
-            padding: 1rem;
-            transition: all 0.3s;
-        }
-
-        .mod-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.6);
-            border-color: #ff00ff;
-        }
-
-        .mod-card img {
-            width: 100%;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .mod-card h4 {
-            color: #b967ff;
-            margin-bottom: 0.5rem;
-        }
-
-        .mod-card p {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .mod-card a {
-            color: #ff00ff;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
         }
 
         /* ===== MUSIC PLAYER ===== */
@@ -311,11 +195,6 @@
             justify-content: flex-end;
         }
 
-        nav {
-            display: flex;
-            align-items: center;
-        }
-
         nav a {
             color: #b967ff;
             margin-right: 1.5rem;
@@ -327,60 +206,6 @@
         nav a:hover {
             color: #ff00ff;
             text-shadow: 0 0 10px #ff00ff;
-        }
-
-        /* ===== USER NAV ===== */
-        .user-nav {
-            margin-right: auto;
-            padding-left: 2rem;
-        }
-
-        .user-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .user-pfp {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #b967ff;
-            vertical-align: middle;
-            margin-right: 10px;
-            transition: all 0.3s;
-        }
-
-        .user-dropdown:hover .user-pfp {
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: rgba(20, 0, 40, 0.95);
-            min-width: 160px;
-            border: 2px solid #ff00ff;
-            border-radius: 5px;
-            z-index: 1;
-            padding: 0.5rem 0;
-        }
-
-        .dropdown-content a {
-            color: #b967ff;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            display: block;
-            transition: all 0.3s;
-        }
-
-        .dropdown-content a:hover {
-            background: rgba(255, 0, 255, 0.2);
-            color: #ff00ff;
-        }
-
-        .user-dropdown:hover .dropdown-content {
-            display: block;
         }
 
         /* ===== SECTIONS ===== */
@@ -478,230 +303,8 @@
             z-index: 10;
         }
 
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .footer-right {
-            display: flex;
-            gap: 1rem;
-        }
-
         footer p {
             margin-left: 2rem;
-        }
-
-        .footer-link {
-            color: #b967ff;
-            text-decoration: none;
-            margin-left: 2rem;
-            transition: all 0.3s;
-        }
-
-        .footer-link:hover {
-            color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff;
-        }
-
-        /* ===== AUTH SYSTEM ===== */
-        .auth-btn {
-            background: rgba(185, 103, 255, 0.2);
-            border: 2px solid #b967ff;
-            color: #ff00ff;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-        }
-
-        .auth-btn:hover {
-            background: rgba(255, 0, 255, 0.3);
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .auth-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(5px);
-        }
-
-        .auth-container {
-            background: rgba(20, 0, 40, 0.95);
-            margin: 10% auto;
-            padding: 2rem;
-            border: 2px solid #ff00ff;
-            border-radius: 10px;
-            width: 350px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
-        }
-
-        .close-auth {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            color: #ff00ff;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .close-auth:hover {
-            color: #b967ff;
-            transform: rotate(90deg);
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .auth-form h3 {
-            color: #ff00ff;
-            text-align: center;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px #ff00ff;
-        }
-
-        .auth-form input {
-            background: rgba(30, 0, 60, 0.8);
-            border: 1px solid #8a2be2;
-            padding: 0.8rem;
-            border-radius: 5px;
-            color: #e0e0e0;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .auth-form input:focus {
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
-        }
-
-        .auth-submit {
-            background: linear-gradient(45deg, #8a2be2, #ff00ff);
-            border: none;
-            padding: 0.8rem;
-            border-radius: 5px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.3s;
-            text-transform: uppercase;
-        }
-
-        .auth-submit:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.8);
-        }
-
-        /* ===== PROFILE EDIT FORM ===== */
-        .pfp-upload {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        #pfpPreview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid #b967ff;
-            object-fit: cover;
-            margin-bottom: 1rem;
-        }
-
-        textarea {
-            background: rgba(30, 0, 60, 0.8);
-            border: 1px solid #8a2be2;
-            padding: 0.8rem;
-            border-radius: 5px;
-            color: #e0e0e0;
-            outline: none;
-            resize: vertical;
-            min-height: 100px;
-            transition: all 0.3s;
-        }
-
-        textarea:focus {
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
-        }
-
-        /* ===== MOD UPLOAD SECTION ===== */
-        .mod-upload {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #4b0082;
-        }
-
-        .mod-upload h4 {
-            color: #b967ff;
-            margin-bottom: 0.5rem;
-        }
-
-        /* ===== ALERTS & TOASTS ===== */
-        .alert-box, .error-box, .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 1rem 2rem;
-            border-radius: 5px;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .alert-box {
-            background: rgba(30, 0, 60, 0.9);
-            border: 2px solid #b967ff;
-        }
-
-        .error-box {
-            background: rgba(60, 0, 0, 0.9);
-            border: 2px solid #ed4245;
-        }
-
-        .toast {
-            background: rgba(0, 30, 0, 0.9);
-            border: 2px solid #00ff00;
-        }
-
-        .alert-box button, .error-box button {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid currentColor;
-            color: inherit;
-            padding: 0.3rem 0.8rem;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .alert-box button:hover, .error-box button:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
 
         /* ===== CURSOR SYSTEM ===== */
@@ -766,54 +369,14 @@
                 right: 20px;
                 padding: 10px 15px;
             }
-            .footer-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .auth-btn {
-                margin: 0.5rem 0;
-            }
-            .auth-container {
-                width: 90%;
-                margin: 20% auto;
-            }
-            .user-nav {
-                padding-left: 1rem;
-            }
-            .search-container {
-                top: 70px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            .search-bar {
-                width: 80vw;
-            }
-            .search-bar:focus {
-                width: 85vw;
-            }
-            .footer-left, .footer-right {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            .footer-link {
-                margin: 0.5rem 0;
-            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Search Bar -->
-    <div class="search-container">
-        <input type="text" class="search-bar" placeholder="Search users/mods..." id="searchInput">
-        <button class="search-btn" id="searchBtn">🔍</button>
-        <div class="search-results" id="searchResults"></div>
-    </div>
-
     <!-- Audio Element (Hidden) -->
     <audio id="bgMusic" loop>
-        <source src="SpotifyMate.com - mr robot - yourshxbh.mp3" type="audio/mpeg">
+        <source src="SpotifyMate.com - In My Head - Bedroom" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -837,7 +400,6 @@
             <a href="#work">Work</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
-            <a href="#mods">Mods</a>
         </nav>
     </header>
 
@@ -890,732 +452,79 @@
         <p>What I Wanna Do: i do programs, i upload tuts on yt, and i do this for fun lol. IF YOU WANT TO HIT ME UP CONTACT ME VIA DISCORD(astrakyss.)."</p>
     </section>
 
-    <!-- Mods Section -->
-    <section id="mods">
-        <h2>Community Mods</h2>
-        <div class="mod-grid" id="modsGrid">
-            <!-- Mods will be loaded here dynamically -->
-        </div>
-    </section>
-
-    <!-- Footer with Auth -->
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-left">
-                <p>© 2025 loverboy. rights reserved.</p>
-                <a href="/mods" class="footer-link">Browse Mods</a>
-                <a href="/login" class="footer-link">Login</a>
-                <a href="/signup" class="footer-link">Sign Up</a>
-                <a href="/terms" class="footer-link">Terms</a>
-                <a href="/privacy" class="footer-link">Privacy</a>
-            </div>
-            
-            <div class="footer-right">
-                <button id="signupTrigger" class="auth-btn">SIGN THE FUCK UP</button>
-                <button id="loginTrigger" class="auth-btn">LOGIN</button>
-            </div>
-        </div>
-
-        <!-- Auth modals -->
-        <div id="authModal" class="auth-modal">
-            <div class="auth-container">
-                <span class="close-auth">&times;</span>
-                
-                <!-- Login Form -->
-                <form id="loginForm" class="auth-form">
-                    <h3>LOGIN</h3>
-                    <input type="email" placeholder="EMAIL" required>
-                    <input type="password" placeholder="PASSWORD" required>
-                    <button type="submit" class="auth-submit">ENTER THE SYSTEM</button>
-                    <p style="text-align: center; margin-top: 1rem;">
-                        <a href="#" id="showResetPassword" style="color: #b967ff; font-size: 0.9rem;">Forgot password?</a>
-                    </p>
-                </form>
-                
-                <!-- Signup Form -->
-                <form id="signupForm" class="auth-form" style="display:none;">
-                    <h3>SIGN UP</h3>
-                    <input type="text" placeholder="USERNAME" required>
-                    <input type="email" placeholder="EMAIL" required>
-                    <input type="password" placeholder="PASSWORD" required>
-                    <input type="password" placeholder="CONFIRM PASSWORD" required>
-                    <button type="submit" class="auth-submit">JOIN THE UNDERGROUND</button>
-                </form>
-                
-                <!-- Reset Password Form -->
-                <form id="resetPasswordForm" class="auth-form" style="display:none;">
-                    <h3>RESET PASSWORD</h3>
-                    <input type="email" placeholder="EMAIL" required>
-                    <button type="submit" class="auth-submit">SEND RESET LINK</button>
-                    <p style="text-align: center; margin-top: 1rem;">
-                        <a href="#" id="backToLogin" style="color: #b967ff; font-size: 0.9rem;">Back to login</a>
-                    </p>
-                </form>
-            </div>
-        </div>
+        <p>© 2025 loverboy. rights reserved.</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // ===== FIREBASE CONFIG =====
-        const firebaseConfig = {
-            apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
-            authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
-            projectId: "loverboyinfo-e4ff3",
-            storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
-            messagingSenderId: "1027700209532",
-            appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
-            measurementId: "G-RYQ4LW8ZF1"
-        };
+      
+      // ===== MUSIC PLAYER =====
+const bgMusic = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('musicToggle');
+let isMusicPlaying = false;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+// Set lower volume for better user experience
+bgMusic.volume = 0.6;
 
-        // ===== SEARCH FUNCTIONALITY =====
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const searchResults = document.getElementById('searchResults');
-        const searchContainer = document.querySelector('.search-container');
-        
-        searchBtn.addEventListener('click', searchContent);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchContent();
+// Aggressive autoplay strategy
+function forceAutoplay() {
+  // First try regular play
+  const playPromise = bgMusic.play();
+  
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      // If blocked, mute and try again (many browsers allow muted autoplay)
+      bgMusic.muted = true;
+      bgMusic.play()
+        .then(() => {
+          // Success! Now try unmuting
+          setTimeout(() => {
+            bgMusic.muted = false;
+            isMusicPlaying = true;
+            musicToggle.textContent = '🔊';
+          }, 1000);
+        })
+        .catch(err => {
+          // Final fallback - wait for user interaction
+          isMusicPlaying = false;
+          musicToggle.textContent = '🔇';
+          document.body.addEventListener('click', () => {
+            bgMusic.play();
+            isMusicPlaying = true;
+            musicToggle.textContent = '🔊';
+          }, { once: true });
         });
-
-        searchInput.addEventListener('input', (e) => {
-            if (e.target.value.length > 0) {
-                searchContent();
-            } else {
-                searchResults.style.display = 'none';
-            }
-        });
-
-        async function searchContent() {
-            const query = searchInput.value.toLowerCase();
-            if (!query) {
-                searchResults.style.display = 'none';
-                return;
-            }
-            
-            try {
-                // Search users
-                const usersSnapshot = await db.collection('users')
-                    .where('username', '>=', query)
-                    .where('username', '<=', query + '\uf8ff')
-                    .limit(5)
-                    .get();
-                
-                // Search mods
-                const modsSnapshot = await db.collection('mods')
-                    .where('name', '>=', query)
-                    .where('name', '<=', query + '\uf8ff')
-                    .limit(5)
-                    .get();
-                
-                const results = [];
-                
-                usersSnapshot.forEach(doc => {
-                    results.push({
-                        type: 'user',
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                modsSnapshot.forEach(doc => {
-                    results.push({
-                        type: 'mod',
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                displaySearchResults(results);
-            } catch (error) {
-                console.error("Search error:", error);
-                showError("Search failed");
-            }
-        }
-
-        function displaySearchResults(results) {
-            if (results.length === 0) {
-                searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
-                searchResults.style.display = 'block';
-                return;
-            }
-            
-            searchResults.innerHTML = '';
-            
-            results.forEach(result => {
-                const item = document.createElement('div');
-                item.className = 'search-result-item';
-                
-                if (result.type === 'user') {
-                    item.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <img src="${result.pfpUrl || 'https://example.com/default-pfp.jpg'}" 
-                                 style="width: 30px; height: 30px; border-radius: 50%;">
-                            <div>
-                                <strong>${result.username}</strong>
-                                <div style="font-size: 0.8em; color: #b967ff;">User</div>
-                            </div>
-                        </div>
-                    `;
-                    item.addEventListener('click', () => {
-                        window.location.href = `/user/${result.id}`;
-                    });
-                } else if (result.type === 'mod') {
-                    item.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 30px; height: 30px; background: #4b0082; display: flex; 
-                                 align-items: center; justify-content: center; border-radius: 5px;">
-                                📦
-                            </div>
-                            <div>
-                                <strong>${result.name}</strong>
-                                <div style="font-size: 0.8em; color: #b967ff;">Mod by ${result.author}</div>
-                            </div>
-                        </div>
-                    `;
-                    item.addEventListener('click', () => {
-                        window.location.href = `/mod/${result.id}`;
-                    });
-                }
-                
-                searchResults.appendChild(item);
-            });
-            
-            searchResults.style.display = 'block';
-        }
-
-        // Close search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchContainer.contains(e.target)) {
-                searchResults.style.display = 'none';
-            }
-        });
-
-        // ===== MODS FUNCTIONALITY =====
-        async function loadMods() {
-            try {
-                const modsSnapshot = await db.collection('mods').limit(10).get();
-                const modsGrid = document.getElementById('modsGrid');
-                modsGrid.innerHTML = '';
-                
-                if (modsSnapshot.empty) {
-                    modsGrid.innerHTML = '<p>No mods found. Be the first to upload one!</p>';
-                    return;
-                }
-                
-                modsSnapshot.forEach(doc => {
-                    const mod = doc.data();
-                    const modCard = document.createElement('div');
-                    modCard.className = 'mod-card';
-                    modCard.innerHTML = `
-                        <img src="${mod.image || 'https://example.com/default-mod.jpg'}" alt="${mod.name}">
-                        <h4>${mod.name}</h4>
-                        <p>by ${mod.author}</p>
-                        <p>${mod.description || 'No description provided'}</p>
-                        <p>${mod.downloads || 0} downloads</p>
-                        <a href="${mod.fileUrl || '#'}">Download</a>
-                    `;
-                    modsGrid.appendChild(modCard);
-                });
-            } catch (error) {
-                showError("Failed to load mods");
-            }
-        }
-
-        // ===== AUTH STATE LISTENER =====
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // User is signed in
-                showUserNav(user);
-                if (!user.emailVerified) {
-                    showEmailVerificationAlert(user);
-                }
-                // Load user data from Firestore
-                loadUserData(user.uid);
-            } else {
-                // User is signed out
-                hideUserNav();
-            }
-        });
-
-        // ===== AUTH SYSTEM =====
-        const signupTrigger = document.getElementById('signupTrigger');
-        const loginTrigger = document.getElementById('loginTrigger');
-        const authModal = document.getElementById('authModal');
-        const closeAuth = document.querySelector('.close-auth');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const resetPasswordForm = document.getElementById('resetPasswordForm');
-        const showResetPassword = document.getElementById('showResetPassword');
-        const backToLogin = document.getElementById('backToLogin');
-
-        // Open login modal
-        loginTrigger.addEventListener('click', () => {
-            authModal.style.display = 'block';
-            loginForm.style.display = 'block';
-            signupForm.style.display = 'none';
-            resetPasswordForm.style.display = 'none';
-        });
-
-        // Open signup modal
-        signupTrigger.addEventListener('click', () => {
-            authModal.style.display = 'block';
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'block';
-            resetPasswordForm.style.display = 'none';
-        });
-
-        // Show reset password form
-        showResetPassword?.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'none';
-            resetPasswordForm.style.display = 'block';
-        });
-
-        // Back to login from reset password
-        backToLogin?.addEventListener('click', (e) => {
-            e.preventDefault();
-            resetPasswordForm.style.display = 'none';
-            loginForm.style.display = 'block';
-        });
-
-        // Close modal
-        closeAuth.addEventListener('click', () => {
-            authModal.style.display = 'none';
-        });
-
-        // Close when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                authModal.style.display = 'none';
-            }
-        });
-
-        // Login form submission
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = loginForm.querySelector('input[type="email"]').value;
-            const password = loginForm.querySelector('input[type="password"]').value;
-            
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                authModal.style.display = 'none';
-                showToast('Logged in successfully');
-            } catch (error) {
-                showError(error.message);
-            }
-        });
-
-        // Signup form submission
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = signupForm.querySelector('input[type="email"]').value;
-            const password = signupForm.querySelectorAll('input[type="password"]')[0].value;
-            const username = signupForm.querySelector('input[type="text"]').value;
-
-            // Check if passwords match
-            if (password !== signupForm.querySelectorAll('input[type="password"]')[1].value) {
-                showError("Passwords don't match");
-                return;
-            }
-
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await userCredential.user.sendEmailVerification();
-                
-                // Save additional user data
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    username: username,
-                    pfpUrl: 'https://example.com/default-pfp.jpg',
-                    bio: 'New member of the underground',
-                    email: email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                authModal.style.display = 'none';
-                showToast('Verification email sent! Check your inbox.');
-            } catch (error) {
-                showError(error.message);
-            }
-        });
-
-        // Reset password form submission
-        resetPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = resetPasswordForm.querySelector('input[type="email"]').value;
-            
-            try {
-                await auth.sendPasswordResetEmail(email);
-                authModal.style.display = 'none';
-                showToast('Password reset link sent to your email');
-            } catch (error) {
-                showError(error.message);
-            }
-        });
-
-        // ===== USER PROFILE MANAGEMENT =====
-        let currentUserData = null;
-
-        async function loadUserData(userId) {
-            try {
-                const doc = await db.collection('users').doc(userId).get();
-                if (doc.exists) {
-                    currentUserData = doc.data();
-                    updateUserNav(currentUserData);
-                }
-            } catch (error) {
-                console.error("Error loading user data:", error);
-            }
-        }
-
-        function showUserNav(user) {
-            // Create or show user nav
-            let userNav = document.querySelector('.user-nav');
-            if (!userNav) {
-                userNav = document.createElement('div');
-                userNav.className = 'user-nav';
-                userNav.innerHTML = `
-                    <div class="user-dropdown">
-                        <img src="${user.photoURL || currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" class="user-pfp">
-                        <span>${currentUserData?.username || 'User'}</span>
-                        <div class="dropdown-content">
-                            <a href="#" id="editProfile">Edit Profile</a>
-                            <a href="#" id="changePassword">Change Password</a>
-                            <a href="#" id="logout">Logout</a>
-                        </div>
-                    </div>
-                `;
-                document.querySelector('header nav').prepend(userNav);
-                
-                // Add event listeners
-                document.getElementById('editProfile').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showEditProfile(e);
-                });
-                
-                document.getElementById('logout').addEventListener('click', logout);
-                document.getElementById('changePassword').addEventListener('click', showChangePassword);
-            }
-            userNav.style.display = 'block';
-        }
-
-        function updateUserNav(userData) {
-            const userNav = document.querySelector('.user-nav');
-            if (userNav) {
-                const pfp = userNav.querySelector('.user-pfp');
-                const name = userNav.querySelector('span');
-                
-                if (userData.pfpUrl) {
-                    pfp.src = userData.pfpUrl;
-                }
-                if (userData.username) {
-                    name.textContent = userData.username;
-                }
-            }
-        }
-
-        function hideUserNav() {
-            const userNav = document.querySelector('.user-nav');
-            if (userNav) userNav.style.display = 'none';
-        }
-
-        function logout() {
-            auth.signOut().then(() => {
-                showToast('Logged out successfully');
-            }).catch(error => {
-                showError(error.message);
-            });
-        }
-
-        function showChangePassword(e) {
-            e.preventDefault();
-            authModal.style.display = 'block';
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'none';
-            resetPasswordForm.style.display = 'block';
-        }
-
-        async function showEditProfile(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const user = auth.currentUser;
-    if (!user) {
-        showError("You must be logged in to edit your profile");
-        return;
-    }
-
-    // Remove existing modal if present
-    const existingModal = document.getElementById('profileModal');
-    if (existingModal) {
-        document.body.removeChild(existingModal);
-    }
-    
-    // Load current data if not already loaded
-    if (!currentUserData) {
-        try {
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (doc.exists) {
-                currentUserData = doc.data();
-            } else {
-                currentUserData = {
-                    username: '',
-                    bio: '',
-                    pfpUrl: 'https://example.com/default-pfp.jpg'
-                };
-            }
-        } catch (error) {
-            console.error("Error loading user data:", error);
-            showError("Failed to load profile data");
-            return;
-        }
-    }
-    
-    // Create profile edit modal
-    const profileModal = document.createElement('div');
-    profileModal.className = 'auth-modal';
-    profileModal.id = 'profileModal';
-    profileModal.style.display = 'block';
-    profileModal.innerHTML = `
-        <div class="auth-container" style="margin-top: 10vh;">
-            <span class="close-auth">&times;</span>
-            <form id="profileForm" class="auth-form">
-                <h3>EDIT PROFILE</h3>
-                <div class="pfp-upload">
-                    <img src="${currentUserData.pfpUrl}" id="pfpPreview">
-                    <input type="file" id="pfpUpload" accept="image/*">
-                </div>
-                <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData.username}" required>
-                <textarea id="profileBio" placeholder="Bio">${currentUserData.bio}</textarea>
-                <button type="submit" class="auth-submit" id="saveChangesBtn">SAVE CHANGES</button>
-                <div id="saveStatus" style="margin-top: 10px; text-align: center;"></div>
-            </form>
-        </div>
-    `;
-    document.body.appendChild(profileModal);
-    
-    // Handle pfp upload preview
-    document.getElementById('pfpUpload').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                document.getElementById('pfpPreview').src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
     });
-
-    // Handle form submission
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const submitBtn = document.getElementById('saveChangesBtn');
-        const statusDiv = document.getElementById('saveStatus');
-        const originalBtnText = submitBtn.textContent;
-        
-        submitBtn.textContent = 'Saving...';
-        submitBtn.disabled = true;
-        statusDiv.textContent = '';
-        statusDiv.style.color = '';
-        
-        try {
-            // Get form values
-            const username = document.getElementById('profileUsername').value.trim();
-            const bio = document.getElementById('profileBio').value.trim();
-            const pfpFile = document.getElementById('pfpUpload').files[0];
-            
-            if (!username) {
-                throw new Error("Username is required");
-            }
-            
-            // Update status
-            statusDiv.textContent = "Saving profile...";
-            statusDiv.style.color = "#b967ff";
-            
-            // Prepare update data
-            const updateData = {
-                username: username,
-                bio: bio,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            // Handle profile picture upload if changed
-            if (pfpFile) {
-                statusDiv.textContent = "Uploading profile picture...";
-                const pfpUrl = await uploadPfp(pfpFile, user.uid);
-                updateData.pfpUrl = pfpUrl;
-            }
-            
-            // Save to Firestore
-            statusDiv.textContent = "Updating database...";
-            await db.collection('users').doc(user.uid).set(updateData, { merge: true });
-            
-            // Update local data
-            currentUserData = {
-                ...currentUserData,
-                username: username,
-                bio: bio,
-                pfpUrl: updateData.pfpUrl || currentUserData.pfpUrl
-            };
-            
-            // Update UI
-            updateUserNav(currentUserData);
-            
-            // Show success
-            statusDiv.textContent = "Profile saved successfully!";
-            statusDiv.style.color = "#00ff00";
-            
-            // Close modal after short delay
-            setTimeout(() => {
-                document.body.removeChild(profileModal);
-            }, 1500);
-            
-        } catch (error) {
-            console.error("Save error:", error);
-            statusDiv.textContent = error.message || "Failed to save profile";
-            statusDiv.style.color = "#ff0000";
-            submitBtn.textContent = originalBtnText;
-            submitBtn.disabled = false;
-        }
-    });
-
-    // Close modal handlers
-    profileModal.querySelector('.close-auth').addEventListener('click', () => {
-        document.body.removeChild(profileModal);
-    });
-    
-    profileModal.addEventListener('click', (e) => {
-        if (e.target === profileModal) {
-            document.body.removeChild(profileModal);
-        }
-    });
+  }
 }
 
-// Improved uploadPfp function
-async function uploadPfp(file, userId) {
-    try {
-        // Validate file
-        if (!file.type.match('image.*')) {
-            throw new Error("Only image files are allowed");
-        }
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            throw new Error("Image must be smaller than 5MB");
-        }
-        
-        const storageRef = storage.ref();
-        const fileExt = file.name.split('.').pop();
-        const filename = `profile_${Date.now()}.${fileExt}`;
-        const pfpRef = storageRef.child(`users/${userId}/profile/${filename}`);
-        
-        // Show upload progress
-        const uploadTask = pfpRef.put(file);
-        
-        // Wait for upload to complete
-        const snapshot = await uploadTask;
-        
-        // Get download URL
-        return await snapshot.ref.getDownloadURL();
-        
-    } catch (error) {
-        console.error("Upload error:", error);
-        throw new Error("Failed to upload profile picture: " + error.message);
-    }
-}
-        // ===== HELPER FUNCTIONS =====
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                document.body.removeChild(toast);
-            }, 3000);
-        }
+// Initialize music immediately
+document.addEventListener('DOMContentLoaded', () => {
+  // Start with muted autoplay (works in more browsers)
+  bgMusic.muted = true;
+  forceAutoplay();
+  
+  // Try to unmute after a short delay
+  setTimeout(() => {
+    bgMusic.muted = false;
+  }, 1000);
+});
 
-        function showError(message) {
-            const errorBox = document.createElement('div');
-            errorBox.className = 'error-box';
-            errorBox.textContent = message;
-            document.body.appendChild(errorBox);
-            setTimeout(() => {
-                document.body.removeChild(errorBox);
-            }, 5000);
-        }
-
-        // ===== MUSIC PLAYER =====
-        const bgMusic = document.getElementById('bgMusic');
-        const musicToggle = document.getElementById('musicToggle');
-        let isMusicPlaying = false;
-
-        // Set lower volume for better user experience
-        bgMusic.volume = 0.6;
-
-        // Aggressive autoplay strategy
-        function forceAutoplay() {
-            // First try regular play
-            const playPromise = bgMusic.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // If blocked, mute and try again (many browsers allow muted autoplay)
-                    bgMusic.muted = true;
-                    bgMusic.play()
-                        .then(() => {
-                            // Success! Now try unmuting
-                            setTimeout(() => {
-                                bgMusic.muted = false;
-                                isMusicPlaying = true;
-                                musicToggle.textContent = '🔊';
-                            }, 1000);
-                        })
-                        .catch(err => {
-                            // Final fallback - wait for user interaction
-                            isMusicPlaying = false;
-                            musicToggle.textContent = '🔇';
-                            document.body.addEventListener('click', () => {
-                                bgMusic.play();
-                                isMusicPlaying = true;
-                                musicToggle.textContent = '🔊';
-                            }, { once: true });
-                        });
-                });
-            }
-        }
-
-        // Initialize music immediately
-        document.addEventListener('DOMContentLoaded', () => {
-            // Start with muted autoplay (works in more browsers)
-            bgMusic.muted = true;
-            forceAutoplay();
-            
-            // Try to unmute after a short delay
-            setTimeout(() => {
-                bgMusic.muted = false;
-            }, 1000);
-        });
-
-        // Toggle music
-        musicToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (isMusicPlaying) {
-                bgMusic.pause();
-                musicToggle.textContent = '🔇';
-            } else {
-                bgMusic.play();
-                musicToggle.textContent = '🔊';
-            }
-            isMusicPlaying = !isMusicPlaying;
-        });
+// Toggle music
+musicToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (isMusicPlaying) {
+    bgMusic.pause();
+    musicToggle.textContent = '🔇';
+  } else {
+    bgMusic.play();
+    musicToggle.textContent = '🔊';
+  }
+  isMusicPlaying = !isMusicPlaying;
+});
 
         // ===== CURSOR SYSTEM =====
         const cursor = document.querySelector('.cursor');
@@ -1697,9 +606,6 @@ async function uploadPfp(file, userId) {
                     });
                 }
             }, 5000);
-
-            // Load mods when page loads
-            loadMods();
         });
     </script>
 </body>
