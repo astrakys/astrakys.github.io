@@ -1,9 +1,9 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>astrakyss. | My Portfolio</title>
+    <title>astrakyss. | loverboy.info</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -24,6 +24,92 @@
             color: #e0e0e0;
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        /* ===== SEARCH BAR ===== */
+        .search-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            background: rgba(30, 0, 60, 0.9);
+            border: 2px solid #b967ff;
+            color: #e0e0e0;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            width: 200px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .search-bar:focus {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+            width: 250px;
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            color: #b967ff;
+            margin-left: -35px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* ===== MODS SECTION ===== */
+        #mods {
+            min-height: auto;
+            padding: 2rem;
+        }
+
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .mod-card {
+            background: rgba(20, 0, 40, 0.7);
+            border: 1px solid #4b0082;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .mod-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.6);
+            border-color: #ff00ff;
+        }
+
+        .mod-card img {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .mod-card h4 {
+            color: #b967ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .mod-card p {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mod-card a {
+            color: #ff00ff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         /* ===== MUSIC PLAYER ===== */
@@ -517,6 +603,18 @@
             box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
         }
 
+        /* ===== MOD UPLOAD SECTION ===== */
+        .mod-upload {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #4b0082;
+        }
+
+        .mod-upload h4 {
+            color: #b967ff;
+            margin-bottom: 0.5rem;
+        }
+
         /* ===== ALERTS & TOASTS ===== */
         .alert-box, .error-box, .toast {
             position: fixed;
@@ -636,11 +734,28 @@
             .user-nav {
                 padding-left: 1rem;
             }
+            .search-container {
+                top: 70px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .search-bar {
+                width: 80vw;
+            }
+            .search-bar:focus {
+                width: 85vw;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search users/mods..." id="searchInput">
+        <button class="search-btn" id="searchBtn">🔍</button>
+    </div>
+
     <!-- Audio Element (Hidden) -->
     <audio id="bgMusic" loop>
         <source src="SpotifyMate.com - mr robot - yourshxbh.mp3" type="audio/mpeg">
@@ -667,6 +782,7 @@
             <a href="#work">Work</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
+            <a href="#mods">Mods</a>
         </nav>
     </header>
 
@@ -719,11 +835,20 @@
         <p>What I Wanna Do: i do programs, i upload tuts on yt, and i do this for fun lol. IF YOU WANT TO HIT ME UP CONTACT ME VIA DISCORD(astrakyss.)."</p>
     </section>
 
+    <!-- Mods Section -->
+    <section id="mods">
+        <h2>Community Mods</h2>
+        <div class="mod-grid" id="modsGrid">
+            <!-- Mods will be loaded here dynamically -->
+        </div>
+    </section>
+
     <!-- Footer with Auth -->
     <footer>
         <div class="footer-content">
             <div class="footer-left">
                 <p>© 2025 loverboy. rights reserved.</p>
+                <a href="#mods" style="color: #b967ff; margin-left: 2rem;">Browse Mods</a>
             </div>
             
             <div class="footer-right">
@@ -776,20 +901,82 @@
     <script>
         // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
-  apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
-  authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
-  projectId: "loverboyinfo-e4ff3",
-  storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
-  messagingSenderId: "1027700209532",
-  appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
-  measurementId: "G-RYQ4LW8ZF1"
-};
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
+
+        // ===== SEARCH FUNCTIONALITY =====
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        searchBtn.addEventListener('click', searchContent);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchContent();
+        });
+
+        function searchContent() {
+            const query = searchInput.value.toLowerCase();
+            if (!query) return;
+            
+            // Search users and mods (implementation depends on your database structure)
+            console.log("Searching for:", query);
+            // You would query Firestore here for matching users/mods
+            showToast(`Search results for: ${query}`);
+        }
+
+        // ===== MODS FUNCTIONALITY =====
+        async function loadMods() {
+            try {
+                // Example mods - replace with Firestore query
+                const mods = [
+                    {
+                        id: 1,
+                        name: "Cyberpunk UI Pack",
+                        author: "neon_hacker",
+                        description: "Complete UI overhaul with neon effects",
+                        downloads: 1250,
+                        image: "https://example.com/mod1.jpg"
+                    },
+                    {
+                        id: 2,
+                        name: "Dark Mode Extreme",
+                        author: "shadow_coder",
+                        description: "Ultra dark theme with custom cursors",
+                        downloads: 892,
+                        image: "https://example.com/mod2.jpg"
+                    }
+                ];
+
+                const modsGrid = document.getElementById('modsGrid');
+                modsGrid.innerHTML = '';
+                
+                mods.forEach(mod => {
+                    const modCard = document.createElement('div');
+                    modCard.className = 'mod-card';
+                    modCard.innerHTML = `
+                        <img src="${mod.image}" alt="${mod.name}">
+                        <h4>${mod.name}</h4>
+                        <p>by ${mod.author}</p>
+                        <p>${mod.description}</p>
+                        <p>${mod.downloads} downloads</p>
+                        <a href="#">Download</a>
+                    `;
+                    modsGrid.appendChild(modCard);
+                });
+            } catch (error) {
+                showError("Failed to load mods");
+            }
+        }
 
         // ===== AUTH STATE LISTENER =====
         auth.onAuthStateChanged(user => {
@@ -946,8 +1133,8 @@
                 userNav.className = 'user-nav';
                 userNav.innerHTML = `
                     <div class="user-dropdown">
-                        <img src="${user.photoURL || 'https://example.com/default-pfp.jpg'}" class="user-pfp">
-                        <span>${user.displayName || 'User'}</span>
+                        <img src="${user.photoURL || currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" class="user-pfp">
+                        <span>${currentUserData?.username || 'User'}</span>
                         <div class="dropdown-content">
                             <a href="#" id="editProfile">Edit Profile</a>
                             <a href="#" id="changePassword">Change Password</a>
@@ -1036,6 +1223,17 @@
                         </div>
                         <input type="text" placeholder="Username" value="${currentUserData?.username || ''}" required>
                         <textarea placeholder="Bio">${currentUserData?.bio || ''}</textarea>
+                        
+                        <!-- Add mod upload section for signed up users -->
+                        ${user.emailVerified ? `
+                        <div class="mod-upload">
+                            <h4>Upload a Mod</h4>
+                            <input type="text" id="modName" placeholder="Mod Name">
+                            <textarea id="modDescription" placeholder="Mod Description"></textarea>
+                            <input type="file" id="modFile" accept=".zip,.rar,.7z">
+                        </div>
+                        ` : ''}
+                        
                         <button type="submit" class="auth-submit">SAVE CHANGES</button>
                     </form>
                 </div>
@@ -1054,7 +1252,7 @@
                 }
             });
 
-            // Handle form submission
+            // Handle form submission - FIXED SAVE FUNCTIONALITY
             document.getElementById('profileForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const username = e.target.querySelector('input[type="text"]').value;
@@ -1067,6 +1265,28 @@
                         pfpUrl = await uploadPfp(pfpFile, auth.currentUser.uid);
                     }
                     
+                    // Handle mod upload if user is verified
+                    if (user.emailVerified) {
+                        const modName = document.getElementById('modName').value;
+                        const modDescription = document.getElementById('modDescription').value;
+                        const modFile = document.getElementById('modFile').files[0];
+                        
+                        if (modName && modFile) {
+                            const modUrl = await uploadMod(modFile, auth.currentUser.uid);
+                            await db.collection('mods').add({
+                                name: modName,
+                                description: modDescription,
+                                fileUrl: modUrl,
+                                author: currentUserData.username,
+                                authorId: user.uid,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                downloads: 0
+                            });
+                            showToast('Mod uploaded successfully!');
+                        }
+                    }
+                    
+                    // Update user profile
                     await db.collection('users').doc(auth.currentUser.uid).update({
                         username: username,
                         bio: bio,
@@ -1084,6 +1304,9 @@
                     updateUserNav(currentUserData);
                     showToast('Profile updated successfully');
                     document.body.removeChild(profileModal);
+                    
+                    // Refresh mods if one was uploaded
+                    if (user.emailVerified) loadMods();
                 } catch (error) {
                     showError(error.message);
                 }
@@ -1100,6 +1323,19 @@
                     document.body.removeChild(profileModal);
                 }
             });
+        }
+
+        // ===== MOD UPLOAD FUNCTION =====
+        async function uploadMod(file, userId) {
+            try {
+                const storageRef = storage.ref();
+                const modRef = storageRef.child(`mods/${userId}/${Date.now()}_${file.name}`);
+                const snapshot = await modRef.put(file);
+                return await snapshot.ref.getDownloadURL();
+            } catch (error) {
+                console.error("Error uploading mod:", error);
+                throw error;
+            }
         }
 
         async function uploadPfp(file, userId) {
@@ -1311,6 +1547,9 @@
                     });
                 }
             }, 5000);
+
+            // Load mods when page loads
+            loadMods();
         });
     </script>
 </body>
