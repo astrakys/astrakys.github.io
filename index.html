@@ -1345,166 +1345,167 @@
         }
 
         async function showEditProfile(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const user = auth.currentUser;
-            if (!currentUserData) {
-                await loadUserData(user.uid);
-            }
-            
-            // Remove existing modal if present
-            const existingModal = document.getElementById('profileModal');
-            if (existingModal) {
-                document.body.removeChild(existingModal);
-            }
-            
-            // Create profile edit modal
-            const profileModal = document.createElement('div');
-            profileModal.className = 'auth-modal';
-            profileModal.id = 'profileModal';
-            profileModal.style.display = 'block';
-            profileModal.innerHTML = `
-                <div class="auth-container" style="margin-top: 10vh;">
-                    <span class="close-auth">&times;</span>
-                    <form id="profileForm" class="auth-form">
-                        <h3>EDIT PROFILE</h3>
-                        <div class="pfp-upload">
-                            <img src="${currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" id="pfpPreview">
-                            <input type="file" id="pfpUpload" accept="image/*">
-                        </div>
-                        <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData?.username || ''}" required>
-                        <textarea id="profileBio" placeholder="Bio">${currentUserData?.bio || ''}</textarea>
-                        
-                        ${user.emailVerified ? `
-                        <div class="mod-upload">
-                            <h4>Upload a Mod</h4>
-                            <input type="text" id="modName" placeholder="Mod Name">
-                            <textarea id="modDescription" placeholder="Mod Description"></textarea>
-                            <input type="file" id="modFile" accept=".zip,.rar,.7z">
-                        </div>
-                        ` : ''}
-                        
-                        <button type="submit" class="auth-submit">SAVE CHANGES</button>
-                    </form>
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const user = auth.currentUser;
+    if (!currentUserData) {
+        await loadUserData(user.uid);
+    }
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('profileModal');
+    if (existingModal) {
+        document.body.removeChild(existingModal);
+    }
+    
+    // Create profile edit modal
+    const profileModal = document.createElement('div');
+    profileModal.className = 'auth-modal';
+    profileModal.id = 'profileModal';
+    profileModal.style.display = 'block';
+    profileModal.innerHTML = `
+        <div class="auth-container" style="margin-top: 10vh;">
+            <span class="close-auth">&times;</span>
+            <form id="profileForm" class="auth-form">
+                <h3>EDIT PROFILE</h3>
+                <div class="pfp-upload">
+                    <img src="${currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" id="pfpPreview">
+                    <input type="file" id="pfpUpload" accept="image/*">
                 </div>
-            `;
-            document.body.appendChild(profileModal);
-            
-            // Handle pfp upload preview
-            document.getElementById('pfpUpload').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        document.getElementById('pfpPreview').src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Handle form submission - FIXED VERSION
-            document.getElementById('profileForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
+                <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData?.username || ''}" required>
+                <textarea id="profileBio" placeholder="Bio">${currentUserData?.bio || ''}</textarea>
                 
-                // Show loading state
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.textContent;
-                submitBtn.textContent = 'Saving...';
-                submitBtn.disabled = true;
+                ${user.emailVerified ? `
+                <div class="mod-upload">
+                    <h4>Upload a Mod</h4>
+                    <input type="text" id="modName" placeholder="Mod Name">
+                    <textarea id="modDescription" placeholder="Mod Description"></textarea>
+                    <input type="file" id="modFile" accept=".zip,.rar,.7z">
+                </div>
+                ` : ''}
                 
-                try {
-                    const username = document.getElementById('profileUsername').value;
-                    const bio = document.getElementById('profileBio').value;
-                    const pfpFile = document.getElementById('pfpUpload').files[0];
-                    
-                    let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
-                    
-                    // Upload new profile picture if selected
-                    if (pfpFile) {
-                        try {
-                            pfpUrl = await uploadPfp(pfpFile, user.uid);
-                        } catch (error) {
-                            console.error("Error uploading profile picture:", error);
-                            throw new Error("Failed to upload profile picture");
-                        }
-                    }
-                    
-                    // Update user data in Firestore
-                    await db.collection('users').doc(user.uid).update({
-                        username: username,
-                        bio: bio,
-                        pfpUrl: pfpUrl,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // Handle mod upload if user is verified and fields are filled
-                    if (user.emailVerified) {
-                        const modName = document.getElementById('modName')?.value;
-                        const modDescription = document.getElementById('modDescription')?.value;
-                        const modFile = document.getElementById('modFile')?.files[0];
-                        
-                        if (modName && modFile) {
-                            try {
-                                const modUrl = await uploadMod(modFile, user.uid);
-                                await db.collection('mods').add({
-                                    name: modName,
-                                    description: modDescription,
-                                    fileUrl: modUrl,
-                                    author: username,
-                                    authorId: user.uid,
-                                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                                    downloads: 0
-                                });
-                                showToast('Mod uploaded successfully!');
-                            } catch (error) {
-                                console.error("Error uploading mod:", error);
-                                throw new Error("Failed to upload mod");
-                            }
-                        }
-                    }
-                    
-                    // Update local user data
-                    currentUserData = {
-                        ...currentUserData,
-                        username,
-                        bio,
-                        pfpUrl
-                    };
-                    
-                    // Update UI
-                    updateUserNav(currentUserData);
-                    showToast('Profile updated successfully');
-                    
-                    // Close modal
-                    document.body.removeChild(profileModal);
-                    
-                    // Refresh mods if one was uploaded
-                    if (user.emailVerified) {
-                        loadMods();
-                    }
-                } catch (error) {
-                    console.error("Error saving profile:", error);
-                    showError(error.message || "Failed to save changes");
-                    
-                    // Reset button state
-                    submitBtn.textContent = originalBtnText;
-                    submitBtn.disabled = false;
-                }
-            });
-
-            // Close modal handlers remain the same
-            profileModal.querySelector('.close-auth').addEventListener('click', () => {
-                document.body.removeChild(profileModal);
-            });
-            
-            profileModal.addEventListener('click', (e) => {
-                if (e.target === profileModal) {
-                    document.body.removeChild(profileModal);
-                }
-            });
+                <button type="submit" class="auth-submit" id="saveChangesBtn">SAVE CHANGES</button>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(profileModal);
+    
+    // Handle pfp upload preview
+    document.getElementById('pfpUpload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.getElementById('pfpPreview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         }
+    });
 
+    // Handle form submission - OPTIMIZED VERSION
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('saveChangesBtn');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = 'Saving...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Get form values
+            const username = document.getElementById('profileUsername').value;
+            const bio = document.getElementById('profileBio').value;
+            const pfpFile = document.getElementById('pfpUpload').files[0];
+            
+            // Start all async operations simultaneously
+            const uploadTasks = [];
+            let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
+            
+            // Handle profile picture upload if changed
+            if (pfpFile) {
+                uploadTasks.push(
+                    uploadPfp(pfpFile, user.uid)
+                        .then(url => { pfpUrl = url; })
+                        .catch(error => {
+                            console.error("Profile pic upload failed:", error);
+                            throw new Error("Profile picture upload failed");
+                        })
+                );
+            }
+            
+            // Handle mod upload if applicable
+            let modUploadPromise = Promise.resolve();
+            if (user.emailVerified) {
+                const modName = document.getElementById('modName')?.value;
+                const modDescription = document.getElementById('modDescription')?.value;
+                const modFile = document.getElementById('modFile')?.files[0];
+                
+                if (modName && modFile) {
+                    modUploadPromise = uploadMod(modFile, user.uid)
+                        .then(modUrl => {
+                            return db.collection('mods').add({
+                                name: modName,
+                                description: modDescription,
+                                fileUrl: modUrl,
+                                author: username,
+                                authorId: user.uid,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                downloads: 0
+                            });
+                        })
+                        .then(() => showToast('Mod uploaded successfully!'))
+                        .catch(error => {
+                            console.error("Mod upload failed:", error);
+                            throw new Error("Mod upload failed");
+                        });
+                }
+            }
+            
+            // Wait for all uploads to complete
+            await Promise.all(uploadTasks);
+            
+            // Update user profile (this is usually fast)
+            await db.collection('users').doc(user.uid).update({
+                username: username,
+                bio: bio,
+                pfpUrl: pfpUrl,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Update local data
+            currentUserData = { ...currentUserData, username, bio, pfpUrl };
+            updateUserNav(currentUserData);
+            
+            // Wait for mod upload if it was happening
+            await modUploadPromise;
+            
+            showToast('Profile updated successfully');
+            document.body.removeChild(profileModal);
+            
+            // Refresh mods if one was uploaded
+            if (user.emailVerified) {
+                loadMods();
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+            showError(error.message || "Failed to save changes");
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Close modal handlers
+    profileModal.querySelector('.close-auth').addEventListener('click', () => {
+        document.body.removeChild(profileModal);
+    });
+    
+    profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) {
+            document.body.removeChild(profileModal);
+        }
+    });
+}
         // ===== MOD UPLOAD FUNCTION =====
         async function uploadMod(file, userId) {
             try {
