@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -401,7 +401,7 @@
         .auth-modal {
             display: none;
             position: fixed;
-            z-index: 9999;
+            z-index: 10000;
             left: 0;
             top: 0;
             width: 100%;
@@ -784,7 +784,6 @@
   appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
   measurementId: "G-RYQ4LW8ZF1"
 };
-        
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -959,9 +958,13 @@
                 document.querySelector('header nav').prepend(userNav);
                 
                 // Add event listeners
+                document.getElementById('editProfile').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showEditProfile(e);
+                });
+                
                 document.getElementById('logout').addEventListener('click', logout);
                 document.getElementById('changePassword').addEventListener('click', showChangePassword);
-                document.getElementById('editProfile').addEventListener('click', showEditProfile);
             }
             userNav.style.display = 'block';
         }
@@ -994,25 +997,36 @@
             });
         }
 
-        function showChangePassword() {
+        function showChangePassword(e) {
+            e.preventDefault();
             authModal.style.display = 'block';
             loginForm.style.display = 'none';
             signupForm.style.display = 'none';
             resetPasswordForm.style.display = 'block';
         }
 
-        async function showEditProfile() {
+        async function showEditProfile(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const user = auth.currentUser;
             if (!currentUserData) {
                 await loadUserData(user.uid);
+            }
+            
+            // Remove existing modal if present
+            const existingModal = document.getElementById('profileModal');
+            if (existingModal) {
+                document.body.removeChild(existingModal);
             }
             
             // Create profile edit modal
             const profileModal = document.createElement('div');
             profileModal.className = 'auth-modal';
             profileModal.id = 'profileModal';
+            profileModal.style.display = 'block';
             profileModal.innerHTML = `
-                <div class="auth-container">
+                <div class="auth-container" style="margin-top: 10vh;">
                     <span class="close-auth">&times;</span>
                     <form id="profileForm" class="auth-form">
                         <h3>EDIT PROFILE</h3>
@@ -1050,7 +1064,6 @@
                 try {
                     let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
                     if (pfpFile) {
-                        // Upload new pfp
                         pfpUrl = await uploadPfp(pfpFile, auth.currentUser.uid);
                     }
                     
@@ -1079,6 +1092,13 @@
             // Close modal
             profileModal.querySelector('.close-auth').addEventListener('click', () => {
                 document.body.removeChild(profileModal);
+            });
+            
+            // Close when clicking outside
+            profileModal.addEventListener('click', (e) => {
+                if (e.target === profileModal) {
+                    document.body.removeChild(profileModal);
+                }
             });
         }
 
