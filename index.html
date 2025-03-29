@@ -1403,7 +1403,7 @@
         }
     });
 
-    // Handle form submission - OPTIMIZED VERSION
+    // Handle form submission - WORKING VERSION
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -1418,54 +1418,13 @@
             const bio = document.getElementById('profileBio').value;
             const pfpFile = document.getElementById('pfpUpload').files[0];
             
-            // Start all async operations simultaneously
-            const uploadTasks = [];
+            // 1. Handle profile picture upload first if changed
             let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
-            
-            // Handle profile picture upload if changed
             if (pfpFile) {
-                uploadTasks.push(
-                    uploadPfp(pfpFile, user.uid)
-                        .then(url => { pfpUrl = url; })
-                        .catch(error => {
-                            console.error("Profile pic upload failed:", error);
-                            throw new Error("Profile picture upload failed");
-                        })
-                );
+                pfpUrl = await uploadPfp(pfpFile, user.uid);
             }
             
-            // Handle mod upload if applicable
-            let modUploadPromise = Promise.resolve();
-            if (user.emailVerified) {
-                const modName = document.getElementById('modName')?.value;
-                const modDescription = document.getElementById('modDescription')?.value;
-                const modFile = document.getElementById('modFile')?.files[0];
-                
-                if (modName && modFile) {
-                    modUploadPromise = uploadMod(modFile, user.uid)
-                        .then(modUrl => {
-                            return db.collection('mods').add({
-                                name: modName,
-                                description: modDescription,
-                                fileUrl: modUrl,
-                                author: username,
-                                authorId: user.uid,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                                downloads: 0
-                            });
-                        })
-                        .then(() => showToast('Mod uploaded successfully!'))
-                        .catch(error => {
-                            console.error("Mod upload failed:", error);
-                            throw new Error("Mod upload failed");
-                        });
-                }
-            }
-            
-            // Wait for all uploads to complete
-            await Promise.all(uploadTasks);
-            
-            // Update user profile (this is usually fast)
+            // 2. Update user profile in Firestore
             await db.collection('users').doc(user.uid).update({
                 username: username,
                 bio: bio,
@@ -1473,12 +1432,35 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
+            // 3. Handle mod upload if applicable
+            if (user.emailVerified) {
+                const modName = document.getElementById('modName')?.value;
+                const modDescription = document.getElementById('modDescription')?.value;
+                const modFile = document.getElementById('modFile')?.files[0];
+                
+                if (modName && modFile) {
+                    try {
+                        const modUrl = await uploadMod(modFile, user.uid);
+                        await db.collection('mods').add({
+                            name: modName,
+                            description: modDescription,
+                            fileUrl: modUrl,
+                            author: username,
+                            authorId: user.uid,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            downloads: 0
+                        });
+                        showToast('Mod uploaded successfully!');
+                    } catch (modError) {
+                        console.error("Mod upload failed:", modError);
+                        // Don't fail the entire save if mod upload fails
+                    }
+                }
+            }
+            
             // Update local data
             currentUserData = { ...currentUserData, username, bio, pfpUrl };
             updateUserNav(currentUserData);
-            
-            // Wait for mod upload if it was happening
-            await modUploadPromise;
             
             showToast('Profile updated successfully');
             document.body.removeChild(profileModal);
@@ -1506,6 +1488,36 @@
         }
     });
 }
+
+// Helper function to upload profile picture
+async function uploadPfp(file, userId) {
+    try {
+        const storageRef = storage.ref();
+        const fileExt = file.name.split('.').pop();
+        const pfpRef = storageRef.child(`pfps/${userId}/profile.${fileExt}`);
+        
+        const snapshot = await pfpRef.put(file);
+        return await snapshot.ref.getDownloadURL();
+    } catch (error) {
+        console.error("Upload error:", error);
+        throw new Error("Failed to upload profile picture");
+    }
+}
+
+// Helper function to upload mod
+async function uploadMod(file, userId) {
+    try {
+        const storageRef = storage.ref();
+        const modRef = storageRef.child(`mods/${userId}/${Date.now()}_${file.name}`);
+        
+        const snapshot = await modRef.put(file);
+        return await snapshot.ref.getDownloadURL();
+    } catch (error) {
+        console.error("Upload error:", error);
+        throw new Error("Failed to upload mod file");
+    }
+}
+
         // ===== MOD UPLOAD FUNCTION =====
         async function uploadMod(file, userId) {
             try {
