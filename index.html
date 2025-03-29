@@ -31,7 +31,7 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 100;
+            z-index: 1000; /* Increased z-index */
             display: flex;
             align-items: center;
         }
@@ -979,6 +979,7 @@
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         const searchResults = document.getElementById('searchResults');
+        const searchContainer = document.querySelector('.search-container');
         
         searchBtn.addEventListener('click', searchContent);
         searchInput.addEventListener('keypress', (e) => {
@@ -1372,10 +1373,9 @@
                             <img src="${currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" id="pfpPreview">
                             <input type="file" id="pfpUpload" accept="image/*">
                         </div>
-                        <input type="text" placeholder="Username" value="${currentUserData?.username || ''}" required>
-                        <textarea placeholder="Bio">${currentUserData?.bio || ''}</textarea>
+                        <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData?.username || ''}" required>
+                        <textarea id="profileBio" placeholder="Bio">${currentUserData?.bio || ''}</textarea>
                         
-                        <!-- Add mod upload section for signed up users -->
                         ${user.emailVerified ? `
                         <div class="mod-upload">
                             <h4>Upload a Mod</h4>
@@ -1403,48 +1403,68 @@
                 }
             });
 
-            // Handle form submission - FIXED SAVE FUNCTIONALITY
+            // Handle form submission - FIXED VERSION
             document.getElementById('profileForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = e.target.querySelector('input[type="text"]').value;
-                const bio = e.target.querySelector('textarea').value;
-                const pfpFile = e.target.querySelector('input[type="file"]').files[0];
+                
+                // Show loading state
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Saving...';
+                submitBtn.disabled = true;
                 
                 try {
-                    let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
-                    if (pfpFile) {
-                        pfpUrl = await uploadPfp(pfpFile, auth.currentUser.uid);
-                    }
+                    const username = document.getElementById('profileUsername').value;
+                    const bio = document.getElementById('profileBio').value;
+                    const pfpFile = document.getElementById('pfpUpload').files[0];
                     
-                    // Handle mod upload if user is verified
-                    if (user.emailVerified) {
-                        const modName = document.getElementById('modName').value;
-                        const modDescription = document.getElementById('modDescription').value;
-                        const modFile = document.getElementById('modFile').files[0];
-                        
-                        if (modName && modFile) {
-                            const modUrl = await uploadMod(modFile, auth.currentUser.uid);
-                            await db.collection('mods').add({
-                                name: modName,
-                                description: modDescription,
-                                fileUrl: modUrl,
-                                author: currentUserData.username,
-                                authorId: user.uid,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                                downloads: 0
-                            });
-                            showToast('Mod uploaded successfully!');
+                    let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
+                    
+                    // Upload new profile picture if selected
+                    if (pfpFile) {
+                        try {
+                            pfpUrl = await uploadPfp(pfpFile, user.uid);
+                        } catch (error) {
+                            console.error("Error uploading profile picture:", error);
+                            throw new Error("Failed to upload profile picture");
                         }
                     }
                     
-                    // Update user profile
-                    await db.collection('users').doc(auth.currentUser.uid).update({
+                    // Update user data in Firestore
+                    await db.collection('users').doc(user.uid).update({
                         username: username,
                         bio: bio,
-                        pfpUrl: pfpUrl
+                        pfpUrl: pfpUrl,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
-                    // Update local data
+                    // Handle mod upload if user is verified and fields are filled
+                    if (user.emailVerified) {
+                        const modName = document.getElementById('modName')?.value;
+                        const modDescription = document.getElementById('modDescription')?.value;
+                        const modFile = document.getElementById('modFile')?.files[0];
+                        
+                        if (modName && modFile) {
+                            try {
+                                const modUrl = await uploadMod(modFile, user.uid);
+                                await db.collection('mods').add({
+                                    name: modName,
+                                    description: modDescription,
+                                    fileUrl: modUrl,
+                                    author: username,
+                                    authorId: user.uid,
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                    downloads: 0
+                                });
+                                showToast('Mod uploaded successfully!');
+                            } catch (error) {
+                                console.error("Error uploading mod:", error);
+                                throw new Error("Failed to upload mod");
+                            }
+                        }
+                    }
+                    
+                    // Update local user data
                     currentUserData = {
                         ...currentUserData,
                         username,
@@ -1452,23 +1472,32 @@
                         pfpUrl
                     };
                     
+                    // Update UI
                     updateUserNav(currentUserData);
                     showToast('Profile updated successfully');
+                    
+                    // Close modal
                     document.body.removeChild(profileModal);
                     
                     // Refresh mods if one was uploaded
-                    if (user.emailVerified) loadMods();
+                    if (user.emailVerified) {
+                        loadMods();
+                    }
                 } catch (error) {
-                    showError(error.message);
+                    console.error("Error saving profile:", error);
+                    showError(error.message || "Failed to save changes");
+                    
+                    // Reset button state
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
                 }
             });
 
-            // Close modal
+            // Close modal handlers remain the same
             profileModal.querySelector('.close-auth').addEventListener('click', () => {
                 document.body.removeChild(profileModal);
             });
             
-            // Close when clicking outside
             profileModal.addEventListener('click', (e) => {
                 if (e.target === profileModal) {
                     document.body.removeChild(profileModal);
