@@ -1349,14 +1349,35 @@
     e.stopPropagation();
     
     const user = auth.currentUser;
-    if (!currentUserData) {
-        await loadUserData(user.uid);
+    if (!user) {
+        showError("You must be logged in to edit your profile");
+        return;
     }
-    
+
     // Remove existing modal if present
     const existingModal = document.getElementById('profileModal');
     if (existingModal) {
         document.body.removeChild(existingModal);
+    }
+    
+    // Load current data if not already loaded
+    if (!currentUserData) {
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                currentUserData = doc.data();
+            } else {
+                currentUserData = {
+                    username: '',
+                    bio: '',
+                    pfpUrl: 'https://example.com/default-pfp.jpg'
+                };
+            }
+        } catch (error) {
+            console.error("Error loading user data:", error);
+            showError("Failed to load profile data");
+            return;
+        }
     }
     
     // Create profile edit modal
@@ -1370,22 +1391,13 @@
             <form id="profileForm" class="auth-form">
                 <h3>EDIT PROFILE</h3>
                 <div class="pfp-upload">
-                    <img src="${currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" id="pfpPreview">
+                    <img src="${currentUserData.pfpUrl}" id="pfpPreview">
                     <input type="file" id="pfpUpload" accept="image/*">
                 </div>
-                <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData?.username || ''}" required>
-                <textarea id="profileBio" placeholder="Bio">${currentUserData?.bio || ''}</textarea>
-                
-                ${user.emailVerified ? `
-                <div class="mod-upload">
-                    <h4>Upload a Mod</h4>
-                    <input type="text" id="modName" placeholder="Mod Name">
-                    <textarea id="modDescription" placeholder="Mod Description"></textarea>
-                    <input type="file" id="modFile" accept=".zip,.rar,.7z">
-                </div>
-                ` : ''}
-                
+                <input type="text" id="profileUsername" placeholder="Username" value="${currentUserData.username}" required>
+                <textarea id="profileBio" placeholder="Bio">${currentUserData.bio}</textarea>
                 <button type="submit" class="auth-submit" id="saveChangesBtn">SAVE CHANGES</button>
+                <div id="saveStatus" style="margin-top: 10px; text-align: center;"></div>
             </form>
         </div>
     `;
@@ -1403,75 +1415,75 @@
         }
     });
 
-    // Handle form submission - WORKING VERSION
+    // Handle form submission
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const submitBtn = document.getElementById('saveChangesBtn');
+        const statusDiv = document.getElementById('saveStatus');
         const originalBtnText = submitBtn.textContent;
+        
         submitBtn.textContent = 'Saving...';
         submitBtn.disabled = true;
+        statusDiv.textContent = '';
+        statusDiv.style.color = '';
         
         try {
             // Get form values
-            const username = document.getElementById('profileUsername').value;
-            const bio = document.getElementById('profileBio').value;
+            const username = document.getElementById('profileUsername').value.trim();
+            const bio = document.getElementById('profileBio').value.trim();
             const pfpFile = document.getElementById('pfpUpload').files[0];
             
-            // 1. Handle profile picture upload first if changed
-            let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
-            if (pfpFile) {
-                pfpUrl = await uploadPfp(pfpFile, user.uid);
+            if (!username) {
+                throw new Error("Username is required");
             }
             
-            // 2. Update user profile in Firestore
-            await db.collection('users').doc(user.uid).update({
+            // Update status
+            statusDiv.textContent = "Saving profile...";
+            statusDiv.style.color = "#b967ff";
+            
+            // Prepare update data
+            const updateData = {
                 username: username,
                 bio: bio,
-                pfpUrl: pfpUrl,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            };
             
-            // 3. Handle mod upload if applicable
-            if (user.emailVerified) {
-                const modName = document.getElementById('modName')?.value;
-                const modDescription = document.getElementById('modDescription')?.value;
-                const modFile = document.getElementById('modFile')?.files[0];
-                
-                if (modName && modFile) {
-                    try {
-                        const modUrl = await uploadMod(modFile, user.uid);
-                        await db.collection('mods').add({
-                            name: modName,
-                            description: modDescription,
-                            fileUrl: modUrl,
-                            author: username,
-                            authorId: user.uid,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            downloads: 0
-                        });
-                        showToast('Mod uploaded successfully!');
-                    } catch (modError) {
-                        console.error("Mod upload failed:", modError);
-                        // Don't fail the entire save if mod upload fails
-                    }
-                }
+            // Handle profile picture upload if changed
+            if (pfpFile) {
+                statusDiv.textContent = "Uploading profile picture...";
+                const pfpUrl = await uploadPfp(pfpFile, user.uid);
+                updateData.pfpUrl = pfpUrl;
             }
+            
+            // Save to Firestore
+            statusDiv.textContent = "Updating database...";
+            await db.collection('users').doc(user.uid).set(updateData, { merge: true });
             
             // Update local data
-            currentUserData = { ...currentUserData, username, bio, pfpUrl };
+            currentUserData = {
+                ...currentUserData,
+                username: username,
+                bio: bio,
+                pfpUrl: updateData.pfpUrl || currentUserData.pfpUrl
+            };
+            
+            // Update UI
             updateUserNav(currentUserData);
             
-            showToast('Profile updated successfully');
-            document.body.removeChild(profileModal);
+            // Show success
+            statusDiv.textContent = "Profile saved successfully!";
+            statusDiv.style.color = "#00ff00";
             
-            // Refresh mods if one was uploaded
-            if (user.emailVerified) {
-                loadMods();
-            }
+            // Close modal after short delay
+            setTimeout(() => {
+                document.body.removeChild(profileModal);
+            }, 1500);
+            
         } catch (error) {
             console.error("Save error:", error);
-            showError(error.message || "Failed to save changes");
+            statusDiv.textContent = error.message || "Failed to save profile";
+            statusDiv.style.color = "#ff0000";
             submitBtn.textContent = originalBtnText;
             submitBtn.disabled = false;
         }
@@ -1489,91 +1501,36 @@
     });
 }
 
-// Helper function to upload profile picture
+// Improved uploadPfp function
 async function uploadPfp(file, userId) {
     try {
+        // Validate file
+        if (!file.type.match('image.*')) {
+            throw new Error("Only image files are allowed");
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            throw new Error("Image must be smaller than 5MB");
+        }
+        
         const storageRef = storage.ref();
         const fileExt = file.name.split('.').pop();
-        const pfpRef = storageRef.child(`pfps/${userId}/profile.${fileExt}`);
+        const filename = `profile_${Date.now()}.${fileExt}`;
+        const pfpRef = storageRef.child(`users/${userId}/profile/${filename}`);
         
-        const snapshot = await pfpRef.put(file);
+        // Show upload progress
+        const uploadTask = pfpRef.put(file);
+        
+        // Wait for upload to complete
+        const snapshot = await uploadTask;
+        
+        // Get download URL
         return await snapshot.ref.getDownloadURL();
+        
     } catch (error) {
         console.error("Upload error:", error);
-        throw new Error("Failed to upload profile picture");
+        throw new Error("Failed to upload profile picture: " + error.message);
     }
 }
-
-// Helper function to upload mod
-async function uploadMod(file, userId) {
-    try {
-        const storageRef = storage.ref();
-        const modRef = storageRef.child(`mods/${userId}/${Date.now()}_${file.name}`);
-        
-        const snapshot = await modRef.put(file);
-        return await snapshot.ref.getDownloadURL();
-    } catch (error) {
-        console.error("Upload error:", error);
-        throw new Error("Failed to upload mod file");
-    }
-}
-
-        // ===== MOD UPLOAD FUNCTION =====
-        async function uploadMod(file, userId) {
-            try {
-                const storageRef = storage.ref();
-                const modRef = storageRef.child(`mods/${userId}/${Date.now()}_${file.name}`);
-                const snapshot = await modRef.put(file);
-                return await snapshot.ref.getDownloadURL();
-            } catch (error) {
-                console.error("Error uploading mod:", error);
-                throw error;
-            }
-        }
-
-        async function uploadPfp(file, userId) {
-            try {
-                // Create storage reference
-                const storageRef = storage.ref();
-                const pfpRef = storageRef.child(`pfps/${userId}/${file.name}`);
-                
-                // Upload file
-                const snapshot = await pfpRef.put(file);
-                
-                // Get download URL
-                const downloadURL = await snapshot.ref.getDownloadURL();
-                
-                return downloadURL;
-            } catch (error) {
-                console.error("Error uploading profile picture:", error);
-                throw error;
-            }
-        }
-
-        function showEmailVerificationAlert(user) {
-            const alertBox = document.createElement('div');
-            alertBox.className = 'alert-box';
-            alertBox.innerHTML = `
-                <p>Verify your email to unlock all features</p>
-                <button id="resendVerification">Resend Email</button>
-                <button id="dismissAlert">Dismiss</button>
-            `;
-            document.body.appendChild(alertBox);
-            
-            document.getElementById('resendVerification').addEventListener('click', async () => {
-                try {
-                    await user.sendEmailVerification();
-                    showToast('Verification email resent!');
-                } catch (error) {
-                    showError(error.message);
-                }
-            });
-            
-            document.getElementById('dismissAlert').addEventListener('click', () => {
-                document.body.removeChild(alertBox);
-            });
-        }
-
         // ===== HELPER FUNCTIONS =====
         function showToast(message) {
             const toast = document.createElement('div');
