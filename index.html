@@ -62,6 +62,31 @@
             font-size: 1.2rem;
         }
 
+        /* Search Results Popup */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(20, 0, 40, 0.95);
+            border: 1px solid #b967ff;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #4b0082;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background: rgba(255, 0, 255, 0.1);
+        }
+
         /* ===== MODS SECTION ===== */
         #mods {
             min-height: auto;
@@ -460,8 +485,30 @@
             padding: 0 2rem;
         }
 
+        .footer-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 1rem;
+        }
+
         footer p {
             margin-left: 2rem;
+        }
+
+        .footer-link {
+            color: #b967ff;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: all 0.3s;
+        }
+
+        .footer-link:hover {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
         }
 
         /* ===== AUTH SYSTEM ===== */
@@ -470,7 +517,6 @@
             border: 2px solid #b967ff;
             color: #ff00ff;
             padding: 0.5rem 1rem;
-            margin-left: 1rem;
             border-radius: 5px;
             font-weight: bold;
             transition: all 0.3s;
@@ -745,6 +791,14 @@
             .search-bar:focus {
                 width: 85vw;
             }
+            .footer-left, .footer-right {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .footer-link {
+                margin: 0.5rem 0;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
@@ -754,6 +808,7 @@
     <div class="search-container">
         <input type="text" class="search-bar" placeholder="Search users/mods..." id="searchInput">
         <button class="search-btn" id="searchBtn">🔍</button>
+        <div class="search-results" id="searchResults"></div>
     </div>
 
     <!-- Audio Element (Hidden) -->
@@ -848,7 +903,11 @@
         <div class="footer-content">
             <div class="footer-left">
                 <p>© 2025 loverboy. rights reserved.</p>
-                <a href="#mods" style="color: #b967ff; margin-left: 2rem;">Browse Mods</a>
+                <a href="/mods" class="footer-link">Browse Mods</a>
+                <a href="/login" class="footer-link">Login</a>
+                <a href="/signup" class="footer-link">Sign Up</a>
+                <a href="/terms" class="footer-link">Terms</a>
+                <a href="/privacy" class="footer-link">Privacy</a>
             </div>
             
             <div class="footer-right">
@@ -901,14 +960,14 @@
     <script>
         // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
-  apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
-  authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
-  projectId: "loverboyinfo-e4ff3",
-  storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
-  messagingSenderId: "1027700209532",
-  appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
-  measurementId: "G-RYQ4LW8ZF1"
-};
+            apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
+            authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
+            projectId: "loverboyinfo-e4ff3",
+            storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
+            messagingSenderId: "1027700209532",
+            appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
+            measurementId: "G-RYQ4LW8ZF1"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -919,58 +978,149 @@
         // ===== SEARCH FUNCTIONALITY =====
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
+        const searchResults = document.getElementById('searchResults');
         
         searchBtn.addEventListener('click', searchContent);
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchContent();
         });
 
-        function searchContent() {
+        searchInput.addEventListener('input', (e) => {
+            if (e.target.value.length > 0) {
+                searchContent();
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        async function searchContent() {
             const query = searchInput.value.toLowerCase();
-            if (!query) return;
+            if (!query) {
+                searchResults.style.display = 'none';
+                return;
+            }
             
-            // Search users and mods (implementation depends on your database structure)
-            console.log("Searching for:", query);
-            // You would query Firestore here for matching users/mods
-            showToast(`Search results for: ${query}`);
+            try {
+                // Search users
+                const usersSnapshot = await db.collection('users')
+                    .where('username', '>=', query)
+                    .where('username', '<=', query + '\uf8ff')
+                    .limit(5)
+                    .get();
+                
+                // Search mods
+                const modsSnapshot = await db.collection('mods')
+                    .where('name', '>=', query)
+                    .where('name', '<=', query + '\uf8ff')
+                    .limit(5)
+                    .get();
+                
+                const results = [];
+                
+                usersSnapshot.forEach(doc => {
+                    results.push({
+                        type: 'user',
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                modsSnapshot.forEach(doc => {
+                    results.push({
+                        type: 'mod',
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                displaySearchResults(results);
+            } catch (error) {
+                console.error("Search error:", error);
+                showError("Search failed");
+            }
         }
+
+        function displaySearchResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item">No results found</div>';
+                searchResults.style.display = 'block';
+                return;
+            }
+            
+            searchResults.innerHTML = '';
+            
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'search-result-item';
+                
+                if (result.type === 'user') {
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${result.pfpUrl || 'https://example.com/default-pfp.jpg'}" 
+                                 style="width: 30px; height: 30px; border-radius: 50%;">
+                            <div>
+                                <strong>${result.username}</strong>
+                                <div style="font-size: 0.8em; color: #b967ff;">User</div>
+                            </div>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        window.location.href = `/user/${result.id}`;
+                    });
+                } else if (result.type === 'mod') {
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: #4b0082; display: flex; 
+                                 align-items: center; justify-content: center; border-radius: 5px;">
+                                📦
+                            </div>
+                            <div>
+                                <strong>${result.name}</strong>
+                                <div style="font-size: 0.8em; color: #b967ff;">Mod by ${result.author}</div>
+                            </div>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        window.location.href = `/mod/${result.id}`;
+                    });
+                }
+                
+                searchResults.appendChild(item);
+            });
+            
+            searchResults.style.display = 'block';
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
 
         // ===== MODS FUNCTIONALITY =====
         async function loadMods() {
             try {
-                // Example mods - replace with Firestore query
-                const mods = [
-                    {
-                        id: 1,
-                        name: "Cyberpunk UI Pack",
-                        author: "neon_hacker",
-                        description: "Complete UI overhaul with neon effects",
-                        downloads: 1250,
-                        image: "https://example.com/mod1.jpg"
-                    },
-                    {
-                        id: 2,
-                        name: "Dark Mode Extreme",
-                        author: "shadow_coder",
-                        description: "Ultra dark theme with custom cursors",
-                        downloads: 892,
-                        image: "https://example.com/mod2.jpg"
-                    }
-                ];
-
+                const modsSnapshot = await db.collection('mods').limit(10).get();
                 const modsGrid = document.getElementById('modsGrid');
                 modsGrid.innerHTML = '';
                 
-                mods.forEach(mod => {
+                if (modsSnapshot.empty) {
+                    modsGrid.innerHTML = '<p>No mods found. Be the first to upload one!</p>';
+                    return;
+                }
+                
+                modsSnapshot.forEach(doc => {
+                    const mod = doc.data();
                     const modCard = document.createElement('div');
                     modCard.className = 'mod-card';
                     modCard.innerHTML = `
-                        <img src="${mod.image}" alt="${mod.name}">
+                        <img src="${mod.image || 'https://example.com/default-mod.jpg'}" alt="${mod.name}">
                         <h4>${mod.name}</h4>
                         <p>by ${mod.author}</p>
-                        <p>${mod.description}</p>
-                        <p>${mod.downloads} downloads</p>
-                        <a href="#">Download</a>
+                        <p>${mod.description || 'No description provided'}</p>
+                        <p>${mod.downloads || 0} downloads</p>
+                        <a href="${mod.fileUrl || '#'}">Download</a>
                     `;
                     modsGrid.appendChild(modCard);
                 });
