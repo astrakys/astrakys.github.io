@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>astrakyss. | My Portfolio</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
     <style>
         /* ===== GLOBAL RESET ===== */
         * {
@@ -195,6 +200,11 @@
             justify-content: flex-end;
         }
 
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
         nav a {
             color: #b967ff;
             margin-right: 1.5rem;
@@ -206,6 +216,60 @@
         nav a:hover {
             color: #ff00ff;
             text-shadow: 0 0 10px #ff00ff;
+        }
+
+        /* ===== USER NAV ===== */
+        .user-nav {
+            margin-right: auto;
+            padding-left: 2rem;
+        }
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-pfp {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #b967ff;
+            vertical-align: middle;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+
+        .user-dropdown:hover .user-pfp {
+            border-color: #ff00ff;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(20, 0, 40, 0.95);
+            min-width: 160px;
+            border: 2px solid #ff00ff;
+            border-radius: 5px;
+            z-index: 1;
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-content a {
+            color: #b967ff;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background: rgba(255, 0, 255, 0.2);
+            color: #ff00ff;
+        }
+
+        .user-dropdown:hover .dropdown-content {
+            display: block;
         }
 
         /* ===== SECTIONS ===== */
@@ -419,6 +483,83 @@
             box-shadow: 0 5px 15px rgba(255, 0, 255, 0.8);
         }
 
+        /* ===== PROFILE EDIT FORM ===== */
+        .pfp-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        #pfpPreview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #b967ff;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            background: rgba(30, 0, 60, 0.8);
+            border: 1px solid #8a2be2;
+            padding: 0.8rem;
+            border-radius: 5px;
+            color: #e0e0e0;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #ff00ff;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+        }
+
+        /* ===== ALERTS & TOASTS ===== */
+        .alert-box, .error-box, .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-box {
+            background: rgba(30, 0, 60, 0.9);
+            border: 2px solid #b967ff;
+        }
+
+        .error-box {
+            background: rgba(60, 0, 0, 0.9);
+            border: 2px solid #ed4245;
+        }
+
+        .toast {
+            background: rgba(0, 30, 0, 0.9);
+            border: 2px solid #00ff00;
+        }
+
+        .alert-box button, .error-box button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid currentColor;
+            color: inherit;
+            padding: 0.3rem 0.8rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .alert-box button:hover, .error-box button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         /* ===== CURSOR SYSTEM ===== */
         .cursor {
             width: 20px;
@@ -491,6 +632,9 @@
             .auth-container {
                 width: 90%;
                 margin: 20% auto;
+            }
+            .user-nav {
+                padding-left: 1rem;
             }
         }
     </style>
@@ -596,9 +740,12 @@
                 <!-- Login Form -->
                 <form id="loginForm" class="auth-form">
                     <h3>LOGIN</h3>
-                    <input type="text" placeholder="USERNAME" required>
+                    <input type="email" placeholder="EMAIL" required>
                     <input type="password" placeholder="PASSWORD" required>
                     <button type="submit" class="auth-submit">ENTER THE SYSTEM</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        <a href="#" id="showResetPassword" style="color: #b967ff; font-size: 0.9rem;">Forgot password?</a>
+                    </p>
                 </form>
                 
                 <!-- Signup Form -->
@@ -610,6 +757,16 @@
                     <input type="password" placeholder="CONFIRM PASSWORD" required>
                     <button type="submit" class="auth-submit">JOIN THE UNDERGROUND</button>
                 </form>
+                
+                <!-- Reset Password Form -->
+                <form id="resetPasswordForm" class="auth-form" style="display:none;">
+                    <h3>RESET PASSWORD</h3>
+                    <input type="email" placeholder="EMAIL" required>
+                    <button type="submit" class="auth-submit">SEND RESET LINK</button>
+                    <p style="text-align: center; margin-top: 1rem;">
+                        <a href="#" id="backToLogin" style="color: #b967ff; font-size: 0.9rem;">Back to login</a>
+                    </p>
+                </form>
             </div>
         </div>
     </footer>
@@ -617,6 +774,378 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+  apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
+  authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
+  projectId: "loverboyinfo-e4ff3",
+  storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
+  messagingSenderId: "1027700209532",
+  appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
+  measurementId: "G-RYQ4LW8ZF1"
+};
+        
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // ===== AUTH STATE LISTENER =====
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                showUserNav(user);
+                if (!user.emailVerified) {
+                    showEmailVerificationAlert(user);
+                }
+                // Load user data from Firestore
+                loadUserData(user.uid);
+            } else {
+                // User is signed out
+                hideUserNav();
+            }
+        });
+
+        // ===== AUTH SYSTEM =====
+        const signupTrigger = document.getElementById('signupTrigger');
+        const loginTrigger = document.getElementById('loginTrigger');
+        const authModal = document.getElementById('authModal');
+        const closeAuth = document.querySelector('.close-auth');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const resetPasswordForm = document.getElementById('resetPasswordForm');
+        const showResetPassword = document.getElementById('showResetPassword');
+        const backToLogin = document.getElementById('backToLogin');
+
+        // Open login modal
+        loginTrigger.addEventListener('click', () => {
+            authModal.style.display = 'block';
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            resetPasswordForm.style.display = 'none';
+        });
+
+        // Open signup modal
+        signupTrigger.addEventListener('click', () => {
+            authModal.style.display = 'block';
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            resetPasswordForm.style.display = 'none';
+        });
+
+        // Show reset password form
+        showResetPassword?.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'none';
+            resetPasswordForm.style.display = 'block';
+        });
+
+        // Back to login from reset password
+        backToLogin?.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetPasswordForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+
+        // Close modal
+        closeAuth.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+
+        // Close when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.style.display = 'none';
+            }
+        });
+
+        // Login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm.querySelector('input[type="email"]').value;
+            const password = loginForm.querySelector('input[type="password"]').value;
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                authModal.style.display = 'none';
+                showToast('Logged in successfully');
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        // Signup form submission
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = signupForm.querySelector('input[type="email"]').value;
+            const password = signupForm.querySelectorAll('input[type="password"]')[0].value;
+            const username = signupForm.querySelector('input[type="text"]').value;
+
+            // Check if passwords match
+            if (password !== signupForm.querySelectorAll('input[type="password"]')[1].value) {
+                showError("Passwords don't match");
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.sendEmailVerification();
+                
+                // Save additional user data
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    username: username,
+                    pfpUrl: 'https://example.com/default-pfp.jpg',
+                    bio: 'New member of the underground',
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                authModal.style.display = 'none';
+                showToast('Verification email sent! Check your inbox.');
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        // Reset password form submission
+        resetPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = resetPasswordForm.querySelector('input[type="email"]').value;
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                authModal.style.display = 'none';
+                showToast('Password reset link sent to your email');
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        // ===== USER PROFILE MANAGEMENT =====
+        let currentUserData = null;
+
+        async function loadUserData(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    updateUserNav(currentUserData);
+                }
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        function showUserNav(user) {
+            // Create or show user nav
+            let userNav = document.querySelector('.user-nav');
+            if (!userNav) {
+                userNav = document.createElement('div');
+                userNav.className = 'user-nav';
+                userNav.innerHTML = `
+                    <div class="user-dropdown">
+                        <img src="${user.photoURL || 'https://example.com/default-pfp.jpg'}" class="user-pfp">
+                        <span>${user.displayName || 'User'}</span>
+                        <div class="dropdown-content">
+                            <a href="#" id="editProfile">Edit Profile</a>
+                            <a href="#" id="changePassword">Change Password</a>
+                            <a href="#" id="logout">Logout</a>
+                        </div>
+                    </div>
+                `;
+                document.querySelector('header nav').prepend(userNav);
+                
+                // Add event listeners
+                document.getElementById('logout').addEventListener('click', logout);
+                document.getElementById('changePassword').addEventListener('click', showChangePassword);
+                document.getElementById('editProfile').addEventListener('click', showEditProfile);
+            }
+            userNav.style.display = 'block';
+        }
+
+        function updateUserNav(userData) {
+            const userNav = document.querySelector('.user-nav');
+            if (userNav) {
+                const pfp = userNav.querySelector('.user-pfp');
+                const name = userNav.querySelector('span');
+                
+                if (userData.pfpUrl) {
+                    pfp.src = userData.pfpUrl;
+                }
+                if (userData.username) {
+                    name.textContent = userData.username;
+                }
+            }
+        }
+
+        function hideUserNav() {
+            const userNav = document.querySelector('.user-nav');
+            if (userNav) userNav.style.display = 'none';
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                showToast('Logged out successfully');
+            }).catch(error => {
+                showError(error.message);
+            });
+        }
+
+        function showChangePassword() {
+            authModal.style.display = 'block';
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'none';
+            resetPasswordForm.style.display = 'block';
+        }
+
+        async function showEditProfile() {
+            const user = auth.currentUser;
+            if (!currentUserData) {
+                await loadUserData(user.uid);
+            }
+            
+            // Create profile edit modal
+            const profileModal = document.createElement('div');
+            profileModal.className = 'auth-modal';
+            profileModal.id = 'profileModal';
+            profileModal.innerHTML = `
+                <div class="auth-container">
+                    <span class="close-auth">&times;</span>
+                    <form id="profileForm" class="auth-form">
+                        <h3>EDIT PROFILE</h3>
+                        <div class="pfp-upload">
+                            <img src="${currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg'}" id="pfpPreview">
+                            <input type="file" id="pfpUpload" accept="image/*">
+                        </div>
+                        <input type="text" placeholder="Username" value="${currentUserData?.username || ''}" required>
+                        <textarea placeholder="Bio">${currentUserData?.bio || ''}</textarea>
+                        <button type="submit" class="auth-submit">SAVE CHANGES</button>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(profileModal);
+            
+            // Handle pfp upload preview
+            document.getElementById('pfpUpload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        document.getElementById('pfpPreview').src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Handle form submission
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = e.target.querySelector('input[type="text"]').value;
+                const bio = e.target.querySelector('textarea').value;
+                const pfpFile = e.target.querySelector('input[type="file"]').files[0];
+                
+                try {
+                    let pfpUrl = currentUserData?.pfpUrl || 'https://example.com/default-pfp.jpg';
+                    if (pfpFile) {
+                        // Upload new pfp
+                        pfpUrl = await uploadPfp(pfpFile, auth.currentUser.uid);
+                    }
+                    
+                    await db.collection('users').doc(auth.currentUser.uid).update({
+                        username: username,
+                        bio: bio,
+                        pfpUrl: pfpUrl
+                    });
+                    
+                    // Update local data
+                    currentUserData = {
+                        ...currentUserData,
+                        username,
+                        bio,
+                        pfpUrl
+                    };
+                    
+                    updateUserNav(currentUserData);
+                    showToast('Profile updated successfully');
+                    document.body.removeChild(profileModal);
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+
+            // Close modal
+            profileModal.querySelector('.close-auth').addEventListener('click', () => {
+                document.body.removeChild(profileModal);
+            });
+        }
+
+        async function uploadPfp(file, userId) {
+            try {
+                // Create storage reference
+                const storageRef = storage.ref();
+                const pfpRef = storageRef.child(`pfps/${userId}/${file.name}`);
+                
+                // Upload file
+                const snapshot = await pfpRef.put(file);
+                
+                // Get download URL
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                
+                return downloadURL;
+            } catch (error) {
+                console.error("Error uploading profile picture:", error);
+                throw error;
+            }
+        }
+
+        function showEmailVerificationAlert(user) {
+            const alertBox = document.createElement('div');
+            alertBox.className = 'alert-box';
+            alertBox.innerHTML = `
+                <p>Verify your email to unlock all features</p>
+                <button id="resendVerification">Resend Email</button>
+                <button id="dismissAlert">Dismiss</button>
+            `;
+            document.body.appendChild(alertBox);
+            
+            document.getElementById('resendVerification').addEventListener('click', async () => {
+                try {
+                    await user.sendEmailVerification();
+                    showToast('Verification email resent!');
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+            
+            document.getElementById('dismissAlert').addEventListener('click', () => {
+                document.body.removeChild(alertBox);
+            });
+        }
+
+        // ===== HELPER FUNCTIONS =====
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorBox = document.createElement('div');
+            errorBox.className = 'error-box';
+            errorBox.textContent = message;
+            document.body.appendChild(errorBox);
+            setTimeout(() => {
+                document.body.removeChild(errorBox);
+            }, 5000);
+        }
+
         // ===== MUSIC PLAYER =====
         const bgMusic = document.getElementById('bgMusic');
         const musicToggle = document.getElementById('musicToggle');
@@ -712,59 +1241,6 @@
                 cursorFollower.style.transform = 'scale(1)';
                 cursorFollower.style.opacity = '1';
             });
-        });
-
-        // ===== AUTH SYSTEM =====
-        const signupTrigger = document.getElementById('signupTrigger');
-        const loginTrigger = document.getElementById('loginTrigger');
-        const authModal = document.getElementById('authModal');
-        const closeAuth = document.querySelector('.close-auth');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-
-        // Open login modal
-        loginTrigger.addEventListener('click', () => {
-            authModal.style.display = 'block';
-            loginForm.style.display = 'block';
-            signupForm.style.display = 'none';
-        });
-
-        // Open signup modal
-        signupTrigger.addEventListener('click', () => {
-            authModal.style.display = 'block';
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'block';
-        });
-
-        // Close modal
-        closeAuth.addEventListener('click', () => {
-            authModal.style.display = 'none';
-        });
-
-        // Close when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                authModal.style.display = 'none';
-            }
-        });
-
-        // Form submissions
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Add your actual auth logic here
-            console.log('Login attempt');
-            authModal.style.display = 'none';
-            // Fake success for demo
-            alert('ACCESS GRANTED');
-        });
-
-        signupForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Add your actual registration logic here
-            console.log('Signup attempt');
-            authModal.style.display = 'none';
-            // Fake success for demo
-            alert('WELCOME TO THE UNDERGROUND');
         });
 
         // ===== PARTICLES.JS INIT =====
