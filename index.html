@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSociety</title>
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --main-bg: #000;
+            --main-text: #fff;
+            --accent: #9c27b0;
+            --accent-dark: #6a1b9a;
+            --accent-light: #ce93d8;
+            --glow: 0 0 10px rgba(156, 39, 176, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: var(--main-bg);
+            color: var(--main-text);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(90deg, var(--main-bg), var(--accent-dark));
+            padding: 1rem;
+            box-shadow: var(--glow);
+            position: relative;
+            animation: pulse 3s infinite;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: var(--glow); }
+            50% { box-shadow: 0 0 20px var(--accent); }
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-light);
+            text-shadow: 0 0 5px var(--accent);
+        }
+
+        /* SEARCH BAR */
+        .search-bar {
+            display: flex;
+            margin: 1rem auto;
+            max-width: 800px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.5rem;
+            background: #111;
+            border: 1px solid var(--accent);
+            color: white;
+        }
+
+        .search-bar button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 1rem;
+            cursor: pointer;
+        }
+
+        /* USER AUTH FORMS */
+        .auth-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--accent);
+            padding: 2rem;
+            z-index: 1000;
+            box-shadow: var(--glow);
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .auth-form input {
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: #111;
+            border: 1px solid var(--accent);
+            color: white;
+            width: 100%;
+        }
+
+        .auth-form button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .auth-form button:hover {
+            background: var(--accent-dark);
+        }
+
+        .auth-switch {
+            color: var(--accent-light);
+            cursor: pointer;
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* ADMIN CONSOLE (HIDDEN UNTIL LOGIN) */
+        .admin-console {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: #111;
+            border-left: 2px solid var(--accent);
+            padding: 1rem;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .admin-console h3 {
+            color: var(--accent-light);
+            margin-bottom: 1rem;
+        }
+
+        .admin-console button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            margin: 0.2rem;
+            cursor: pointer;
+        }
+
+        /* FORUM STYLING */
+        .forum-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .post {
+            background: #111;
+            border: 1px solid var(--accent);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            transition: 0.3s;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .post:hover {
+            box-shadow: var(--glow);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            overflow: hidden;
+        }
+
+        .user-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .username {
+            color: var(--accent-light);
+            font-weight: bold;
+        }
+
+        .post-content {
+            margin: 0.5rem 0;
+        }
+
+        /* USER PROFILE (HIDDEN BY DEFAULT) */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--accent);
+            padding: 2rem;
+            z-index: 1001;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: var(--glow);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-right: 1rem;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info h2 {
+            color: var(--accent-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-info p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .profile-bio {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #111;
+            border: 1px solid var(--accent);
+        }
+
+        /* NAV BUTTONS */
+        .nav-buttons {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-dark);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VSOCIETY</div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="auth-btn">LOGIN</button>
+            <button class="nav-btn" id="admin-btn" style="display: none;">ADMIN</button>
+        </div>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search posts or users...">
+        <button onclick="searchContent()">SEARCH</button>
+    </div>
+
+    <!-- USER AUTH FORMS -->
+    <div class="auth-form" id="login-form">
+        <h3>LOGIN</h3>
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="loginUser()">LOGIN</button>
+        <div class="auth-switch" onclick="showSignup()">Don't have an account? Sign up</div>
+    </div>
+
+    <div class="auth-form" id="signup-form">
+        <h3>SIGN UP</h3>
+        <input type="text" id="signup-username" placeholder="Username">
+        <input type="email" id="signup-email" placeholder="Email">
+        <input type="password" id="signup-password" placeholder="Password">
+        <button onclick="signupUser()">SIGN UP</button>
+        <div class="auth-switch" onclick="showLogin()">Already have an account? Login</div>
+    </div>
+
+    <!-- ADMIN CONSOLE (HIDDEN UNTIL LOGIN) -->
+    <div class="admin-console" id="admin-console">
+        <h3>ADMIN CONTROL PANEL</h3>
+        <div>
+            <button onclick="deletePost('examplePostId')">DELETE POST</button>
+            <button onclick="banUser('exampleUserId')">BAN USER</button>
+            <button onclick="editTheme()">CHANGE THEME</button>
+        </div>
+        <hr>
+        <h4>Active Users</h4>
+        <ul id="active-users"></ul>
+    </div>
+
+    <!-- USER PROFILE MODAL -->
+    <div class="profile-modal" id="profile-modal">
+        <div class="profile-header">
+            <div class="profile-pic">
+                <img id="profile-pic-img" src="" alt="Profile Picture">
+            </div>
+            <div class="profile-info">
+                <h2 id="profile-username">Username</h2>
+                <p id="profile-join-date">Joined: Jan 1, 2023</p>
+            </div>
+        </div>
+        <div class="profile-bio" id="profile-bio">
+            No bio yet.
+        </div>
+        <button onclick="closeProfile()" style="margin-top: 1rem;">CLOSE</button>
+    </div>
+
+    <!-- FORUM POSTS -->
+    <div class="forum-container" id="forum-container">
+        <!-- Posts will load here dynamically -->
+    </div>
+
+    <script>
+        // ===== FIREBASE CONFIG =====
+      const firebaseConfig = {
+  apiKey: "AIzaSyDCgecMQCGovXa9ru-D1KEcyGumDMTz2g8",
+  authDomain: "loverboyinfo-e4ff3.firebaseapp.com",
+  projectId: "loverboyinfo-e4ff3",
+  storageBucket: "loverboyinfo-e4ff3.firebasestorage.app",
+  messagingSenderId: "1027700209532",
+  appId: "1:1027700209532:web:fa5ec69b7da12e477496f9",
+      };
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===== GLOBAL VARS =====
+        let currentUser = null;
+        const ADMIN_UID = "YOUR_ADMIN_UID"; // Replace with your Firebase UID
+
+        // ===== DOM ELEMENTS =====
+        const authBtn = document.getElementById("auth-btn");
+        const adminBtn = document.getElementById("admin-btn");
+        const loginForm = document.getElementById("login-form");
+        const signupForm = document.getElementById("signup-form");
+        const adminConsole = document.getElementById("admin-console");
+        const forumContainer = document.getElementById("forum-container");
+        const profileModal = document.getElementById("profile-modal");
+
+        // ===== EVENT LISTENERS =====
+        authBtn.addEventListener("click", () => {
+            if (currentUser) {
+                // Logout if already logged in
+                auth.signOut();
+            } else {
+                // Show login form
+                showLogin();
+            }
+        });
+
+        adminBtn.addEventListener("click", () => {
+            if (currentUser && currentUser.uid === ADMIN_UID) {
+                adminConsole.style.display = adminConsole.style.display === "block" ? "none" : "block";
+            } else {
+                alert("ACCESS DENIED. ADMIN ONLY.");
+            }
+        });
+
+        // ===== AUTH FUNCTIONS =====
+        function showLogin() {
+            loginForm.style.display = "block";
+            signupForm.style.display = "none";
+        }
+
+        function showSignup() {
+            loginForm.style.display = "none";
+            signupForm.style.display = "block";
+        }
+
+        function loginUser() {
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUser = userCredential.user;
+                    updateUI();
+                    loginForm.style.display = "none";
+                })
+                .catch((error) => {
+                    alert("Login failed: " + error.message);
+                });
+        }
+
+        function signupUser() {
+            const username = document.getElementById("signup-username").value;
+            const email = document.getElementById("signup-email").value;
+            const password = document.getElementById("signup-password").value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Save additional user data to Firestore
+                    return db.collection("users").doc(userCredential.user.uid).set({
+                        username: username,
+                        email: email,
+                        joinDate: new Date().toISOString(),
+                        bio: "New member of VSociety",
+                    });
+                })
+                .then(() => {
+                    alert("Account created! Please login.");
+                    showLogin();
+                })
+                .catch((error) => {
+                    alert("Signup failed: " + error.message);
+                });
+        }
+
+        // ===== USER PROFILE FUNCTIONS =====
+        function openProfile(userId) {
+            db.collection("users").doc(userId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        document.getElementById("profile-username").textContent = userData.username;
+                        document.getElementById("profile-join-date").textContent = "Joined: " + new Date(userData.joinDate).toLocaleDateString();
+                        document.getElementById("profile-bio").textContent = userData.bio || "No bio yet.";
+                        profileModal.style.display = "block";
+                    }
+                });
+        }
+
+        function closeProfile() {
+            profileModal.style.display = "none";
+        }
+
+        // ===== SEARCH FUNCTION =====
+        function searchContent() {
+            const query = document.getElementById("search-input").value.toLowerCase();
+            alert("Search functionality would filter posts/users for: " + query);
+            // In a full implementation, you would filter posts/users from Firestore
+        }
+
+        // ===== ADMIN FUNCTIONS =====
+        function deletePost(postId) {
+            if (currentUser && currentUser.uid === ADMIN_UID) {
+                alert("Post deleted: " + postId);
+                // In a full implementation, you would delete from Firestore
+            } else {
+                alert("ACCESS DENIED. ADMIN ONLY.");
+            }
+        }
+
+        function banUser(userId) {
+            if (currentUser && currentUser.uid === ADMIN_UID) {
+                alert("User banned: " + userId);
+                // In a full implementation, you would update user status in Firestore
+            } else {
+                alert("ACCESS DENIED. ADMIN ONLY.");
+            }
+        }
+
+        function editTheme() {
+            const newColor = prompt("Enter new accent color (hex):", "#9c27b0");
+            if (newColor) {
+                document.documentElement.style.setProperty('--accent', newColor);
+            }
+        }
+
+        // ===== UI UPDATE =====
+        function updateUI() {
+            if (currentUser) {
+                authBtn.textContent = "LOGOUT";
+                if (currentUser.uid === ADMIN_UID) {
+                    adminBtn.style.display = "block";
+                }
+            } else {
+                authBtn.textContent = "LOGIN";
+                adminBtn.style.display = "none";
+                adminConsole.style.display = "none";
+            }
+        }
+
+        // ===== LOAD POSTS =====
+        function loadPosts() {
+            // In a full implementation, you would load posts from Firestore
+            forumContainer.innerHTML = `
+                <div class="post">
+                    <div class="post-header" onclick="openProfile('user1')">
+                        <div class="user-icon">
+                            <img src="https://via.placeholder.com/40" alt="User">
+                        </div>
+                        <span class="username">VSociety_Admin</span>
+                    </div>
+                    <div class="post-content">
+                        Welcome to VSociety. The future is decentralized.
+                    </div>
+                </div>
+                <div class="post">
+                    <div class="post-header" onclick="openProfile('user2')">
+                        <div class="user-icon">
+                            <img src="https://via.placeholder.com/40/673ab7" alt="User">
+                        </div>
+                        <span class="username">User1</span>
+                    </div>
+                    <div class="post-content">
+                        This place looks sick. Love the theme.
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== INIT =====
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            updateUI();
+            loadPosts();
+        });
+    </script>
+</body>
+</html>
